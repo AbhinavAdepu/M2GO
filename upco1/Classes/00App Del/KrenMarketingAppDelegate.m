@@ -1,0 +1,214 @@
+//
+//  KrenMarketingAppDelegate.m
+//  KrenMarketing
+//
+//  Created by Silvertouch on 14/11/11.
+//  Copyright 2011 SilverTouch Tech. Ltd. All rights reserved.
+//
+
+#import "KrenMarketingAppDelegate.h"
+#import "KrenMarketingViewController.h"
+#import "SHK.h"
+#import <dlfcn.h>
+@implementation KrenMarketingAppDelegate
+
+@synthesize window;
+@synthesize viewController;
+@synthesize ori;
+@synthesize img;
+@synthesize database;
+@synthesize ansSetarr;
+@synthesize  correct,incorrect,unanswered;
+@synthesize QRScanDate,QRScanTime,QRScanText,iphonerootController;
+@synthesize chNo,str_date,end_str,strDate,endDate,locationevent,redundantdatai,dataper,evetnotesper;
+@synthesize bgTempColor,catString,arr_emailImages_Quiz,dashboadviewflag;
+@synthesize fontdic,array_catagory,ForBackGroundSupport,fromTwitter,count;
+@synthesize strHr,strMin,strampm,mon,tue,wed,thu,fri,sat,sun,strStartTime,strEndTime,libsectionper;
+@synthesize cameraOpen,photoalbumOpen,fromCamera;
+@synthesize QRImageFromLib,indexForTemplate;
+@synthesize aphoneNo,
+aEventTitle,
+aStDate,
+aEnDate,
+aNotes,
+astreetAdress,
+acity,
+aState,
+aZip,
+acountry;
+@synthesize Prevtemp;
+@synthesize tempImageScan;
+#pragma mark -
+#pragma mark Application lifecycle
+  
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {    
+	
+	ansSetarr = [[NSMutableArray alloc]initWithCapacity:25];
+	NSDictionary *dict = [NSDictionary dictionaryWithObjectsAndKeys:@"NODATA",@"Answer",nil];
+	for(int i=0;i<25;i++)
+	{
+		[ansSetarr addObject:dict];
+	}
+	[SHK logoutOfAll];
+        
+  
+    
+    
+    
+    
+	if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
+	{
+	strEndTime=@"";
+	strStartTime=@"";
+	
+	[self loadFonts];
+	bgTempColor = [UIColor clearColor];
+	
+	NSLog(@"FONT ===%@",[UIFont familyNames]);
+	
+    [self.window addSubview:viewController.view];
+    [self.window makeKeyAndVisible];
+	
+	
+
+	[self checkAndCreateDatabase];
+	
+    return YES;
+	}
+	else 
+	{
+		
+		[self.window addSubview:iphonerootController.view];
+		[self.window makeKeyAndVisible];
+		[self checkAndCreateDatabase];
+		[self loadFonts];
+		return YES;
+
+	}
+}
+-(void)checkAndCreateDatabase
+{
+	databaseName = @"Library.sqlite";
+	
+	NSArray *databaseDir = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+	NSString *documentPath = [databaseDir objectAtIndex:0];
+	
+	databasePath = [documentPath stringByAppendingPathComponent:databaseName];
+	
+	NSLog(@"%@",databasePath);
+	
+	BOOL sqlsuccess;
+	
+	NSFileManager *filemanager = [NSFileManager defaultManager];
+	sqlsuccess = [filemanager fileExistsAtPath:databasePath];
+	
+	if(!sqlsuccess)
+	{
+		NSString *dataAtApp = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:databaseName];
+			[filemanager copyItemAtPath:dataAtApp toPath:databasePath error:nil];
+			[filemanager release];
+		}
+	
+	if(sqlite3_open([databasePath UTF8String], &database) != SQLITE_OK)
+		sqlite3_close(database);
+	
+	return;
+}
+
+
+- (void)applicationWillResignActive:(UIApplication *)application {
+	/*
+	 Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
+	 Use this method to pause ongoing tasks, disable timers, and throttle down OpenGL ES frame rates. Games should use this method to pause the game.
+	 */
+	
+	
+	
+	//here2
+	NSLog(@"here2");
+	[[NSNotificationCenter defaultCenter] postNotificationName:@"callLandScap" object:nil];
+	
+}
+
+
+- (void)applicationDidEnterBackground:(UIApplication *)application {
+	/*
+	 Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later. 
+	 If your application supports background execution, called instead of applicationWillTerminate: when the user quits.
+	 */
+	
+	/*
+	if (ForBackGroundSupport==TRUE) {
+		
+	}
+	else {
+		exit(0);
+	}
+	 */
+}
+
+
+- (void)applicationWillEnterForeground:(UIApplication *)application {
+	/*
+	 Called as part of  transition from the background to the inactive state: here you can undo many of the changes made on entering the background.
+	 */
+	
+	NSLog(@"here1");
+	//here1
+}
+
+
+- (void)applicationDidBecomeActive:(UIApplication *)application {
+	/*
+	 Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
+	 */
+	NSLog(@"here3");
+	[[NSNotificationCenter defaultCenter] postNotificationName:@"callLandScap" object:nil];
+	
+	//here3
+}
+  
+
+
+- (void)applicationWillTerminate:(UIApplication *)application {
+    /*
+     Called when the application is about to terminate.
+     See also applicationDidEnterBackground:.
+     */
+}
+
+#pragma mark LoadFonts
+-(NSUInteger) loadFonts {
+	NSUInteger newFontCount = 0;
+	NSBundle *frameworkBundle = [NSBundle bundleWithIdentifier:@"com.apple.GraphicsServices"];
+	const char *frameworkPath = [[frameworkBundle executablePath] UTF8String];
+	if (frameworkPath) {
+		void *graphicsServices = dlopen(frameworkPath, RTLD_NOLOAD | RTLD_LAZY);
+		if (graphicsServices) {
+			BOOL (*GSFontAddFromFile)(const char *) = dlsym(graphicsServices, "GSFontAddFromFile");
+			if (GSFontAddFromFile)
+				for (NSString *fontFile in [[NSBundle mainBundle] pathsForResourcesOfType:@"otf" inDirectory:nil])
+					newFontCount += GSFontAddFromFile([fontFile UTF8String]);
+		}
+	}
+	return newFontCount;
+}
+
+#pragma mark -
+#pragma mark Memory management
+
+- (void)applicationDidReceiveMemoryWarning:(UIApplication *)application {
+    /*
+     Free up as much memory as possible by purging cached data objects that can be recreated (or reloaded from disk) later.
+     */
+}
+
+
+- (void)dealloc {
+    [viewController release];
+    [window release];
+    [super dealloc];
+}
+
+
+@end

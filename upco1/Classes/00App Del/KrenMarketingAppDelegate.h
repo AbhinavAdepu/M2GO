@@ -1,0 +1,154 @@
+//
+//  KrenMarketingAppDelegate.h
+//  KrenMarketing
+//
+//  Created by Silvertouch on 14/11/11.
+//  Copyright 2011 SilverTouch Tech. Ltd. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import <sqlite3.h>
+#import "IphoneRootViewController.h"
+
+@class KrenMarketingViewController;
+
+
+@interface KrenMarketingAppDelegate : NSObject <UIApplicationDelegate> {
+    UIWindow *window;
+    KrenMarketingViewController *viewController;
+	UIInterfaceOrientation ori;
+	UIImageView *img;
+	NSString *databasePath;
+	sqlite3 *database;
+	NSString *databaseName;
+	NSMutableArray *ansSetarr;
+	
+	NSString *QRScanDate;
+	NSString *QRScanTime;
+	NSString *QRScanText;
+	int correct,incorrect,unanswered;
+	NSString *str_date;
+	NSString *end_str;
+	int chNo;
+	
+	//Jayna131211
+	NSString *catString;
+	UIColor *bgTempColor;
+	NSDate *strDate,*endDate;
+	NSMutableArray *arr_emailImages_Quiz;
+	
+	BOOL dashboadviewflag;
+	NSMutableDictionary* fontdic;
+	
+	NSMutableArray *array_catagory;
+	BOOL ForBackGroundSupport;
+
+	BOOL fromTwitter;
+	
+	
+	//Jayna310112
+	NSString *strampm;
+	int strHr,strMin;
+	BOOL mon,tue,wed,thu,fri,sat,sun;
+	NSString *strStartTime,*strEndTime,*redundantdatai;
+	
+	IBOutlet IphoneRootViewController *iphonerootController;
+	
+	int count;
+    BOOL isicloud;
+	
+	//iphone
+	
+	
+	BOOL cameraOpen;
+	BOOL photoalbumOpen;
+	BOOL fromCamera;
+	UIImage *QRImageFromLib;
+	
+	int indexForTemplate;
+	
+	
+	NSString *aEventTitle;
+	NSString *aStDate;
+	NSString *aEnDate;
+	NSString *aNotes;
+	NSString *astreetAdress;
+	NSString *acity;
+	NSString *aState;
+	NSString *aZip;
+	NSString *acountry;
+	NSString *aphoneNo;
+	NSString *locationevent;
+    NSString *dataper;
+    NSString *evetnotesper;
+    NSString *libsectionper;
+	
+	UIButton *Prevtemp;
+    
+    
+    
+    UIImage *tempImageScan;
+	
+}
+@property (nonatomic, retain)UIImage *tempImageScan;
+@property (nonatomic, retain)UIButton *Prevtemp;
+@property (nonatomic, retain) NSString *strStartTime,*strEndTime;
+@property (readwrite)BOOL mon,tue,wed,thu,fri,sat,sun;
+@property (nonatomic, retain)NSMutableDictionary* fontdic;
+@property (nonatomic, readwrite)int correct,incorrect,unanswered;
+@property (nonatomic, readwrite)BOOL fromTwitter;
+@property (nonatomic, readwrite)UIInterfaceOrientation ori;
+@property (nonatomic, retain) IBOutlet UIWindow *window;
+@property (nonatomic, retain) IBOutlet KrenMarketingViewController *viewController;
+@property (nonatomic, retain) IBOutlet IphoneRootViewController *iphonerootController;
+@property (nonatomic, retain)UIImageView *img;
+@property (nonatomic, retain)NSMutableArray *ansSetarr;
+@property (nonatomic, retain)NSString *QRScanDate;
+@property (nonatomic, retain)NSString *QRScanTime;
+@property (nonatomic, retain)NSString *QRScanText;
+@property (nonatomic, retain)NSString *catString;
+@property (nonatomic, retain)NSString *redundantdatai;
+@property (nonatomic, retain)NSString *dataper;
+@property (nonatomic, retain)NSString *evetnotesper;
+@property (nonatomic, retain)NSString *libsectionper;
+@property (nonatomic, readwrite)int chNo;
+@property (readwrite) sqlite3 *database;
+@property (nonatomic,retain)NSString *str_date;
+@property (nonatomic, retain)NSString *end_str;
+@property (nonatomic, retain)UIColor *bgTempColor;
+@property (nonatomic, retain)NSDate *strDate,*endDate;
+@property (nonatomic, retain)NSMutableArray *arr_emailImages_Quiz;
+@property (readwrite) BOOL dashboadviewflag;
+@property (nonatomic,retain) NSMutableArray *array_catagory;
+@property (readwrite) BOOL ForBackGroundSupport;
+@property (nonatomic, retain)NSString *strampm;
+@property (readwrite)int strHr,strMin;
+
+@property (readwrite)BOOL cameraOpen;
+@property (readwrite)BOOL photoalbumOpen;
+@property (readwrite)BOOL fromCamera;
+@property (nonatomic,retain)UIImage *QRImageFromLib;
+
+@property (nonatomic, readwrite)int indexForTemplate;
+
+
+
+@property (nonatomic,retain)NSString *locationevent;
+@property (nonatomic,retain)NSString *aphoneNo;
+@property (nonatomic,retain)NSString *aEventTitle;
+@property (nonatomic,retain)NSString *aStDate;
+@property (nonatomic,retain)NSString *aEnDate;
+@property (nonatomic,retain)NSString *aNotes;
+@property (nonatomic,retain)NSString *astreetAdress;
+@property (nonatomic,retain)NSString *acity;
+@property (nonatomic,retain)NSString *aState;
+@property (nonatomic,retain)NSString *aZip;
+@property (nonatomic,retain)NSString *acountry;
+
+
+-(NSUInteger) loadFonts;
+-(void)checkAndCreateDatabase;
+@property (readwrite) int count;
+
+@end
+

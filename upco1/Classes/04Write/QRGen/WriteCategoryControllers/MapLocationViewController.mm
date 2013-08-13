@@ -1,0 +1,546 @@
+//
+//  MapLocationViewController.m
+//  KrenMarketing
+//
+//  Created by Jayna Gandhi on 03/03/12.
+//  Copyright 2012 __MyCompanyName__. All rights reserved.
+//
+
+#import "MapLocationViewController.h"
+#import "QRGenDetailViewController.h"
+#import "FileManager.h"
+#import "qr_draw_png.h"
+#import "QR_Encode.h"
+#import "DAL.h"
+#define ALPHABET @"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ  "
+#define NUMBERS @" 1234567890"
+//#define NUMBERS @" ()-1234567890"
+#define ZIP @" 1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-"
+
+
+@implementation MapLocationViewController
+
+// The designated initializer.  Override if you create the controller programmatically and want to perform customization that is not appropriate for viewDidLoad.
+
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+{
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self) 
+	{
+        // Custom initialization.
+    }
+    return self;
+}
+
+
+
+// Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+	
+	scrollTexts.contentSize = CGSizeMake(0,550);
+	txtNotes.font = [UIFont fontWithName:@"Helvetica" size:16];
+	if([txtNotes.text length]>0)
+	{}
+	else 
+	{
+		lblPlaceholder.hidden = NO;
+	}
+	
+	//[txtStreet addTarget:self action:@selector(textFieldDidChange:) forControlEvents:UIControlEventEditingChanged];
+}
+
+
+/*
+// Override to allow orientations other than the default portrait orientation.
+- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
+    // Return YES for supported orientations.
+    return (interfaceOrientation == UIInterfaceOrientationPortrait);
+}
+*/
+-(IBAction)BackToRoot
+{
+	[self.navigationController popViewControllerAnimated:TRUE];
+}
+
+#pragma mark QRGenerate
+
+-(void)TimeandDate
+{
+	NSDate* date = [NSDate date];
+	NSDateFormatter *Date1=[[[NSDateFormatter alloc] init] autorelease];
+	NSDateFormatter *Time1=[[[NSDateFormatter alloc] init] autorelease];
+	[Date1 setDateFormat:@"E MM/dd/yy"];
+	[Time1 setDateFormat:@"h:MM aa"];
+	
+	
+	NSString *Date12=[Date1 stringFromDate:date];
+	NSString *Time12=[Time1 stringFromDate:date];	
+	
+	dateLabel= [[[UILabel alloc]init]autorelease];
+	TimeLabel= [[[UILabel alloc]init]autorelease];
+	dateLabel.text = [NSString stringWithFormat:@"Created and Added to Library on %@",Date12];
+	[TimeLabel setText:Time12];
+}
+
+
+
+-(void)MainDescription
+{
+	
+	NSString* str=@"";
+	NSString* str1=@"";
+    NSString * tmploc=@"";
+	if ([txtStreet.text length] > 0)
+	{
+		//str = [str stringByAppendingString:[NSString stringWithFormat:@"Street Address : %@",txtStreet.text]];
+		
+		str = [str stringByAppendingFormat:@"%@",txtStreet.text];	
+		//str = [str stringByAppendingFormat:@"\n"];
+	}
+	if ([txtCity.text length] > 0)
+	{
+		str = [str stringByAppendingFormat:@" %@",txtCity.text];
+		//str = [str stringByAppendingString:[NSString stringWithFormat:@"City : %@",txtCity.text]];
+		//str = [str stringByAppendingFormat:@"\n"];
+	}
+	if ([txtState.text length] > 0)
+	{
+		str = [str stringByAppendingFormat:@" %@",txtState.text];
+		//str = [str stringByAppendingString:[NSString stringWithFormat:@"State : %@",txtState.text]];
+		//str = [str stringByAppendingFormat:@"\n"];
+	}
+	if ([txtZipCode.text length] > 0)
+	{
+		str = [str stringByAppendingFormat:@" %@",txtZipCode.text];
+		//str = [str stringByAppendingString:[NSString stringWithFormat:@"Zip Code : %@",txtZipCode.text]];
+		//str = [str stringByAppendingFormat:@"\n"];
+	}
+	if ([txtCountry.text length] > 0)
+	{
+		str = [str stringByAppendingFormat:@" %@",txtCountry.text];
+		//str = [str stringByAppendingFormat:@"%@",txtCountry.text];
+		//str = [str stringByAppendingString:[NSString stringWithFormat:@"Country : %@",txtCountry.text]];
+		//str = [str stringByAppendingFormat:@"\n"];
+	}
+	
+	if([txtStreet.text length] > 0 || [txtCity.text length]>0 || [txtState.text length]>0 || [txtZipCode.text length]>0 || [txtCountry.text length] >0)		
+	{
+		str=[str stringByReplacingOccurrencesOfString:@" " withString:@"+"];
+		str1=[NSString stringWithFormat:@"Location: http://maps.google.com/maps?q=%@",str];
+		str1=[str1 stringByAppendingFormat:@"\n\n"];
+        tmploc=[NSString stringWithFormat:@"http://maps.google.com/maps?q=%@",str];
+        tmploc=[tmploc stringByAppendingFormat:@";"];
+        NSLog(@"tmploc:%@",tmploc);
+        NSLog(@"saving loc:%@",str1);
+
+	}
+	
+	if ([txtNotes.text length] > 0)
+	{
+		str1 = [str1 stringByAppendingString:[NSString stringWithFormat:@"Notes: %@",txtNotes.text]];
+		str1 = [str1 stringByAppendingFormat:@"\n"];
+        tmploc = [tmploc stringByAppendingFormat:@"Notes:%@",txtNotes.text];
+	}
+	
+	strattr = [NSMutableAttributedString attributedStringWithString:str1];
+	[strattr setTextColor:[UIColor blackColor]];
+	[strattr setFontFamily:@"Helvetica" size:18 bold:NO italic:NO range:[str1 rangeOfString:str1]];
+			
+	if([txtStreet.text length] > 0 || [txtCity.text length]>0 || [txtState.text length]>0 || [txtZipCode.text length]>0 || [txtCountry.text length] >0)		
+	{
+		[strattr setTextBold:YES range:[str1 rangeOfString:@"Location:"]];
+	}
+	/*
+	if([txtCity.text length] > 0)
+	{
+		[strattr setTextBold:YES range:[str rangeOfString:@"City :"]];
+	}
+	if([txtState.text length] > 0)
+	{
+		[strattr setTextBold:YES range:[str rangeOfString:@"State :"]];
+	}
+	if([txtZipCode.text length] > 0)
+	{
+		[strattr setTextBold:YES range:[str rangeOfString:@"Zip Code :"]];
+	}
+	if([txtCountry.text length] > 0)
+	{
+		[strattr setTextBold:YES range:[str rangeOfString:@"Country :"]];
+	}
+	 */
+	if([txtNotes.text length] > 0)
+	{
+		[strattr setTextBold:YES range:[str1 rangeOfString:@"Notes:"]];
+	}
+	
+			
+
+	CGSize maximumLabelSize1 = CGSizeMake(280,9999);
+	CGSize expectedLabelSize1 = [str1 sizeWithFont:[UIFont fontWithName:@"Helvetica" size:18] constrainedToSize:maximumLabelSize1 lineBreakMode:UILineBreakModeWordWrap];
+	height = expectedLabelSize1.height;	
+			
+			
+	sampleString = [NSString stringWithString:tmploc];
+	
+	
+	[self TimeandDate];
+}
+
+-(UIImage*) maskImage:(UIImage *)image withMask:(UIImage *)maskImage
+{
+	UIView	*MaskView=[[UIView alloc] init];
+	UIImageView *image1=[[UIImageView alloc]init];
+	UIImageView *image2=[[UIImageView alloc]init];
+	MaskView.frame=CGRectMake(0, 0,500,500);	
+	image1.frame=CGRectMake(0,0,160, 160);	
+	image2.frame=CGRectMake(60,54,40,40);
+	image1.image=image;
+	image2.image=maskImage;
+	[MaskView addSubview:image1];
+	[MaskView addSubview:image2];	
+	
+	UIGraphicsBeginImageContext(CGSizeMake(160,160));
+	
+	[MaskView.layer renderInContext:UIGraphicsGetCurrentContext()];
+	UIImage *finishedPic = UIGraphicsGetImageFromCurrentImageContext();	
+	//	Imagesaved=finishedPic;
+	//	[self saveQrCode:Imagesaved];
+	return finishedPic;
+	
+	
+}
+
+-(IBAction)GenerateQrCode
+{
+	char filename [ [[[FileManager sharedFileManager] qRFile] length] + 1];
+	[[[FileManager sharedFileManager] qRFile] getCString:filename maxLength:[[[FileManager sharedFileManager] qRFile] length] + 1 encoding:NSUTF8StringEncoding];
+	
+	
+	[self MainDescription];
+	
+	char str [[sampleString length] + 1];
+	[sampleString getCString:str maxLength:[sampleString length] + 1 encoding:NSUTF8StringEncoding];
+	
+	CQR_Encode encoder;
+	encoder.EncodeData(1, 0, true, -1, str);
+	
+	QRDrawPNG qrDrawPNG;
+	qrDrawPNG.draw(filename, 4, encoder.m_nSymbleSize, encoder.m_byModuleData, NULL);
+	
+	NSData *data = [[NSData alloc] initWithContentsOfFile:[[FileManager sharedFileManager] qRFile]];
+	UIImage *image = [UIImage imageWithData:data];
+	[data release];	
+	ImageQRCode.image=image;
+	UIImage *image12 = [UIImage imageNamed:@"QR_Code_M_Letter-80.png"];	
+	ImageQRCode.image=[self maskImage:ImageQRCode.image withMask:image12];
+	[self saveQrCode:ImageQRCode.image];
+	QRGenDetailViewController *obj_Detail = [[QRGenDetailViewController alloc] initWithNibName:@"QRGenDetailViewController" bundle:nil imageQr:ImageQRCode.image string:lblHeader.text Attribute:strattr index:height Date:dateLabel.text Time:TimeLabel.text];
+	[self.navigationController pushViewController:obj_Detail animated:true];
+	[obj_Detail release];
+	
+}
+- (BOOL)textFieldShouldBeginEditing:(UITextField *)textField      // return NO to disallow editing.
+{
+	if([textField isEqual:txtState])
+	{
+		scrollTexts.contentOffset = CGPointMake(0, 50);
+		//[txtZipCode becomeFirstResponder];
+	}
+	if([textField isEqual:txtZipCode])
+	{
+		scrollTexts.contentOffset = CGPointMake(0, 100);
+		//txtCountry.keyboardType = UIKeyboardTypeAlphabet;
+		//[txtCountry becomeFirstResponder];
+	}
+	if([textField isEqual:txtCountry])
+	{
+		scrollTexts.contentOffset = CGPointMake(0, 200);
+		//[txtNotes performSelector:@selector(becomeFirstResponder) withObject:nil afterDelay:0.0f];
+	}	
+	
+	return YES;
+}
+
+- (void)textFieldDidEndEditing:(UITextField *)textField
+{
+	
+	
+}
+
+-(void)textFieldDidChange:(id)sender
+{
+	UITextField *txt = (id)sender;
+	if(txt.tag == 0)
+	{
+		if([txtStreet.text length] > 0)
+		{
+			BtnEncode.enabled = TRUE;
+		}
+		else 
+		{
+			BtnEncode.enabled = FALSE;
+		}
+	}
+	if(txt.tag == 1)
+	{
+		if([txtCity.text length] > 0)
+		{
+			BtnEncode.enabled = TRUE;
+		}
+		else 
+		{
+			BtnEncode.enabled = FALSE;
+		}
+	}
+	if(txt.tag == 2)
+	{
+		if([txtState.text length] > 0)
+		{
+			BtnEncode.enabled = TRUE;
+		}
+		else 
+		{
+			BtnEncode.enabled = FALSE;
+		}
+	}
+	if(txt.tag == 3)
+	{
+		if([txtZipCode.text length] > 0)
+		{
+			BtnEncode.enabled = TRUE;
+		}
+		else 
+		{
+			BtnEncode.enabled = FALSE;
+		}
+	}
+	if(txt.tag == 4)
+	{
+		if([txtCountry.text length] > 0)
+		{
+			BtnEncode.enabled = TRUE;
+		}
+		else 
+		{
+			BtnEncode.enabled = FALSE;
+		}
+	}
+	if(txt.tag == 5)
+	{
+		if([txtNotes.text length] > 0)
+		{
+			BtnEncode.enabled = TRUE;
+		}
+		else 
+		{
+			BtnEncode.enabled = FALSE;
+		}
+	}
+	
+	if([txtStreet.text length] >0 || [txtCity.text length] > 0 || [txtState.text length] > 0 || [txtZipCode.text length] >0 || [txtCountry.text length] >0 || [txtNotes.text length] >0)
+	{
+		BtnEncode.enabled = TRUE;
+	}
+	
+}
+
+
+- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string   // return NO to not change text
+{	
+	
+	
+	if ([textField isEqual:txtCity]) 
+	{
+		NSCharacterSet *cs;
+		NSString *filtered;
+		cs = [[NSCharacterSet characterSetWithCharactersInString:ALPHABET] invertedSet];
+		filtered = [[string componentsSeparatedByCharactersInSet:cs] componentsJoinedByString:@""];
+		if ([filtered length]>0 )
+		{
+			BtnEncode.enabled = YES;
+		}
+		
+		return [string isEqualToString:filtered];
+	}
+	else if ([textField isEqual:txtCountry]) 
+	{
+		NSCharacterSet *cs;
+		NSString *filtered;
+		cs = [[NSCharacterSet characterSetWithCharactersInString:ALPHABET] invertedSet];
+		filtered = [[string componentsSeparatedByCharactersInSet:cs] componentsJoinedByString:@""];
+		if ([filtered length]>0 )
+		{
+			BtnEncode.enabled = YES;
+		}
+		
+		return [string isEqualToString:filtered];
+	}
+	
+	else if ([textField isEqual:txtZipCode]) 
+	{
+		NSCharacterSet *cs;
+		NSString *filtered;
+		cs = [[NSCharacterSet characterSetWithCharactersInString:ZIP] invertedSet];
+		filtered = [[string componentsSeparatedByCharactersInSet:cs] componentsJoinedByString:@""];
+		if ([filtered length]>0 )
+		{
+			BtnEncode.enabled = YES;
+		}
+		
+		return [string isEqualToString:filtered];
+	}
+	
+	
+	return YES;
+}
+
+-(void)saveQrCode:(UIImage *)image
+{
+	
+	//NSString *sql = [NSString stringWithFormat:@"select *from library"];
+	//NSMutableArray *array=[DAL ExecuteArraySet:sql];
+	
+	UIImage *newImage = ImageQRCode.image;
+	
+	NSDateFormatter* dateFormatter = [[NSDateFormatter alloc] init];
+	[dateFormatter setDateFormat:@"MM-dd-yyyy-HH-mm-ss"];
+	
+	NSString * date = [dateFormatter stringFromDate:[NSDate date]];
+	
+	NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+	NSString *documentsDirectory = [paths objectAtIndex:0];
+	NSString* path = [documentsDirectory stringByAppendingPathComponent: 
+					  [NSString stringWithFormat:@"qr%@.png",date] ];
+	NSData* data = UIImagePNGRepresentation(newImage);
+	[data writeToFile:path atomically:YES];
+	
+	NSString *str = @"";
+	NSString *str1=@"";
+	
+	if (![txtStreet.text isEqualToString:@""]) {				
+		str1 = [str1 stringByAppendingFormat:@"%@",txtStreet.text];	
+	}
+	if (![txtCity.text isEqualToString:@""]) {				
+		str1 = [str1 stringByAppendingFormat:@" %@",txtCity.text];	
+	}
+	if (![txtState.text isEqualToString:@""]) {				
+		str1 = [str1 stringByAppendingFormat:@" %@",txtState.text];	
+	}
+	if (![txtZipCode.text isEqualToString:@""]) {				
+		str1 = [str1 stringByAppendingFormat:@" %@",txtZipCode.text];	
+	}
+	if (![txtCountry.text isEqualToString:@""]) {				
+		str1 = [str1 stringByAppendingFormat:@" %@",txtCountry.text];	
+	}
+	
+	str1=[str1 stringByReplacingOccurrencesOfString:@" " withString:@"+"];
+	str=[NSString stringWithFormat:@"http://maps.google.com/maps?q=%@",str1];
+	
+	[DAL insert_library_CreatedDate:dateLabel.text Image:[NSString stringWithFormat:@"qr%@.png",date] Category:@"Map Location" Description:str starting_Date:@"" Ending_Date:@"" Address:@"" Links:txtNotes.text Email:@"" Locations:@"" Message:@"" Department:@"" Job:@"" Suffix:@"" MiddleName:@"" LastName:@"" FirstName:@"" Prefix:@"" PhoneNo:@"" Subject:@"" Notes:@""];	
+	
+	[[NSNotificationCenter defaultCenter] postNotificationName:@"ReloadData" object:nil];
+}	
+
+
+-(BOOL)textFieldShouldReturn:(UITextField *)textField
+{
+	if ([textField isEqual:txtStreet] ) 
+	{
+		[txtCity becomeFirstResponder];
+	}
+	if([textField isEqual:txtCity])
+	{
+		[txtState becomeFirstResponder];
+	}
+	if([textField isEqual:txtState])
+	{
+		//scrollTexts.contentOffset = CGPointMake(0, 50);
+		[txtZipCode becomeFirstResponder];
+	}
+	if([textField isEqual:txtZipCode])
+	{
+		//scrollTexts.contentOffset = CGPointMake(0, 100);
+		txtCountry.keyboardType = UIKeyboardTypeAlphabet;
+		[txtCountry becomeFirstResponder];
+	}
+	if([textField isEqual:txtCountry])
+	{
+		//scrollTexts.contentOffset = CGPointMake(0, 200);
+		[txtNotes performSelector:@selector(becomeFirstResponder) withObject:nil afterDelay:0.0f];
+	}
+			
+	return YES;
+}
+- (void)textViewDidBeginEditing:(UITextView *)textView
+{
+	if([textView isEqual:txtNotes])
+	{
+		scrollTexts.contentOffset = CGPointMake(0, 220);
+		//[txtNotes performSelector:@selector(becomeFirstResponder) withObject:nil afterDelay:0.0f];
+	}
+	
+}
+- (void)textViewDidChange:(UITextView *)textView
+{	
+	
+	lblPlaceholder.hidden = TRUE;
+	
+	
+	if([txtNotes.text length] > 0)
+	{
+		BtnEncode.enabled = TRUE;
+	}
+	else
+	{
+		if([txtStreet.text length] > 0 || [txtZipCode.text length] > 0||[txtCity.text length]>0 || [txtCountry.text length] > 0 || [txtState.text length] > 0)
+		{
+			BtnEncode.enabled = TRUE;
+		}
+		else 
+		{
+			lblPlaceholder.hidden = FALSE;
+			
+			BtnEncode.enabled = FALSE;
+		}
+	}
+	
+}
+
+- (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text
+{
+	if([text isEqualToString:@"\n"])
+	{
+		[txtNotes resignFirstResponder];
+	}
+	else 
+	{
+		
+	}
+	return YES;
+}
+
+
+
+
+- (void)didReceiveMemoryWarning {
+    // Releases the view if it doesn't have a superview.
+    [super didReceiveMemoryWarning];
+    
+    // Release any cached data, images, etc. that aren't in use.
+}
+
+- (void)viewDidUnload {
+    [super viewDidUnload];
+    // Release any retained subviews of the main view.
+    // e.g. self.myOutlet = nil;
+}
+
+
+- (void)dealloc {
+    [super dealloc];
+}
+
+
+@end

@@ -1,0 +1,265 @@
+//
+//  QRGenDetailViewController.m
+//  KrenMarketing
+//
+//  Created by Jayna Gandhi on 02/03/12.
+//  Copyright 2012 __MyCompanyName__. All rights reserved.
+//
+
+#import "QRGenDetailViewController.h"
+#import "DAL.h"
+#import <MessageUI/MFMailComposeViewController.h>
+#import "SHKItem.h"
+#import "SHKActionSheet.h"
+
+@implementation QRGenDetailViewController
+
+// The designated initializer.  Override if you create the controller programmatically and want to perform customization that is not appropriate for viewDidLoad.
+
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil imageQr:(UIImage*)image string:(NSString*)str Attribute:(NSMutableAttributedString*)attribute index:(int)height Date:(NSString*)date Time:(NSString*)time
+{
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self) 
+	{
+		txtScroll = [[UIScrollView alloc] initWithFrame:CGRectMake(0, 45, 320, 300)];
+		//txtScroll.backgroundColor = [UIColor redColor];
+		
+        imgQR = [[UIImageView alloc] initWithImage:image];
+		imgQR.frame = CGRectMake(10, 10, 100, 100);
+	
+		text_QR = [[NSString alloc]initWithString:str];
+		[text_QR retain];
+		
+		
+		txtDisplay = [[OHAttributedLabel alloc]init];
+		txtDisplay.frame = CGRectMake(20, 120, 280,height);
+		txtDisplay.attributedText=attribute;
+		if([text_QR isEqualToString:@"Event"])
+        {
+            txtDisplay.linkColor = [UIColor blackColor];
+        }
+		
+		dateLabel = [[UILabel alloc] initWithFrame:CGRectMake(110, 20, 170, 30)];
+		dateLabel.font = [UIFont fontWithName:@"Arial" size:12];
+		dateLabel.numberOfLines = 0;
+		dateLabel.backgroundColor = [UIColor clearColor];
+		dateLabel.text = date;
+		
+		TimeLabel = [[UILabel alloc] initWithFrame:CGRectMake(110, 42, 100, 30)];
+		TimeLabel.font = [UIFont fontWithName:@"Arial" size:12];
+		TimeLabel.backgroundColor = [UIColor clearColor];
+		TimeLabel.text = time;
+		
+		txtScroll.contentSize = CGSizeMake(0, txtDisplay.frame.origin.y+txtDisplay.frame.size.height + 10);
+		
+
+		[self.view addSubview:txtScroll];
+		[txtScroll addSubview:imgQR];
+		[txtScroll addSubview:txtDisplay];
+		[txtScroll addSubview:dateLabel];
+		[txtScroll addSubview:TimeLabel];
+		
+    }
+    return self;
+}
+
+-(IBAction)BackToHome
+{
+	[self.navigationController popToRootViewControllerAnimated:TRUE];
+}
+
+
+// Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
+- (void)viewDidLoad 
+{
+    [super viewDidLoad];
+	
+	lblHeader.text = text_QR;
+	
+	appDel = (KrenMarketingAppDelegate*)[[UIApplication sharedApplication]delegate];
+	
+	
+	if(appDel.fontdic)
+	{
+		//NSString* fontname=[appDel.fontdic valueForKey:@"fontName"];
+		int alignment=[[appDel.fontdic valueForKey:@"fontAlign"]intValue];
+		
+		
+		//txtDisplay.attributedText = attribute;
+		
+		[txtDisplay setLineBreakMode:UILineBreakModeCharacterWrap];
+		[txtDisplay setNumberOfLines:9999];
+		
+		if(alignment==21)
+			txtDisplay.textAlignment=UITextAlignmentLeft;
+		else if(alignment==22)
+			txtDisplay.textAlignment=UITextAlignmentCenter;
+		else if(alignment==23)
+			txtDisplay.textAlignment=UITextAlignmentRight;
+		else if(alignment==24)
+			txtDisplay.textAlignment=UITextAlignmentJustify;
+		else 
+			txtDisplay.textAlignment=UITextAlignmentJustify;
+		
+		
+		//txtDisplay.textColor=[UIColor blackColor];
+		txtDisplay.backgroundColor=[UIColor clearColor];
+	}
+	else 
+	{
+		
+	}
+	
+}
+
+-(IBAction)BackToRoot
+{
+	[self.navigationController popViewControllerAnimated:TRUE];
+}
+
+-(IBAction)DeleteQRCode
+{
+	NSString *sql = [NSString stringWithFormat:@"select Image from library where Image =(SELECT MAX(Image) from library)"];
+	NSMutableArray *array=[DAL ExecuteArraySet:sql];
+	
+	NSString  *sql1 =[NSString stringWithFormat:@"delete from library where Image = '%@' ",[NSString stringWithFormat:@"%@",[[array objectAtIndex:0] valueForKey:@"Image"]]];
+	
+	[DAL ExecuteArraySet:sql1];
+	
+	NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+	NSString *documentsDirectory = [paths objectAtIndex:0];
+	NSString * pdfname = [documentsDirectory stringByAppendingPathComponent:[NSString stringWithFormat:@"%@",[[array objectAtIndex:0] valueForKey:@"Image"]]];	
+	[[NSFileManager defaultManager] removeItemAtPath:pdfname error:nil];
+	
+	[[NSNotificationCenter defaultCenter] postNotificationName:@"ReloadData" object:nil];
+	
+	[self.navigationController popViewControllerAnimated:TRUE];
+}
+
+-(IBAction)btnEmailClicked
+{
+	Class mailClass = (NSClassFromString(@"MFMailComposeViewController"));
+	
+	if (mailClass != nil)
+	{
+		// We must always check whether the current device is configured for sending emails
+		if ([mailClass canSendMail])
+		{
+			[self displayComposerSheet];
+		}
+		else
+		{
+			[self launchMailAppOnDevice];
+		}
+	}
+	else
+	{
+		[self launchMailAppOnDevice];
+	}
+}
+
+-(void)displayComposerSheet
+{
+	UIImage *imgScreen = [self captureScreenInRect:CGRectMake(0,0 ,100, 100)];
+	
+	MFMailComposeViewController *picker = [[MFMailComposeViewController alloc] init];
+	picker.mailComposeDelegate = self;
+	
+	
+	
+	/*NSString *tmpBody = @"";
+	 tmpBody =[tmpBody stringByAppendingString:@"<br></br>"];
+	 tmpBody =[tmpBody stringByAppendingString:@"<br></br>"];
+	 //NSString *strURL = [NSString stringWithFormat:@"%@image.ashx?ID=%d&imagesize=W600xH420&imagetype=MainImage",WEB_SERVICE_URL,[idNew intValue]];
+	 tmpBody =[tmpBody stringByAppendingFormat:@"<b><img src='%@'></b>",imgScreen];
+	 [picker setMessageBody:tmpBody isHTML:YES];*/
+	
+	NSData *imgData = UIImagePNGRepresentation(imgScreen);
+	[picker addAttachmentData:imgData mimeType:@"image/png" fileName:@"Result"];//[tmpBody release];
+	
+	
+	//picker.modalPresentationStyle =UIModalPresentationFormSheet;
+	//picker.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
+	[appDel.iphonerootController presentModalViewController:picker animated:YES];
+	//[self presentModalViewController:picker animated:YES];
+    
+	//[picker release];
+}
+
+// Launches the Mail application on the device.
+-(void)launchMailAppOnDevice
+{
+	NSString *recipients = @"mailto:jayna.gandhi@silvertouch.com?cc=second@example.com,third@example.com&subject=Hello from California!";
+	NSString *body = @"&body=It is raining in sunny California!";
+	
+	NSString *email = [NSString stringWithFormat:@"%@%@", recipients, body];
+	email = [email stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+	
+	[[UIApplication sharedApplication] openURL:[NSURL URLWithString:email]];
+}
+
+// Dismisses the email composition interface when users tap Cancel or Send. Proceeds to update the message field with the result of the operation.
+- (void)mailComposeController:(MFMailComposeViewController*)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError*)error 
+{	
+	//message.hidden = NO;
+	
+	[appDel.iphonerootController dismissModalViewControllerAnimated:YES];
+}
+
+- (UIImage *)captureScreenInRect:(CGRect)captureFrame {
+    CALayer *layer;
+    layer = imgQR.layer; //self.view.layer;
+    UIGraphicsBeginImageContext( imgQR.bounds.size);  // self.view.bounds.size); 
+    CGContextClipToRect (UIGraphicsGetCurrentContext(),captureFrame);
+    [layer renderInContext:UIGraphicsGetCurrentContext()];
+    UIImage *screenImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    return screenImage;
+}
+
+-(IBAction)btnTwitterClicked
+{
+	//NSString *text=@"hello";
+	SHKItem *item = [SHKItem image:imgQR.image title:nil];
+	//SHKActionSheet *actionSheet = [SHKActionSheet actionSheetForItem:item];
+	//[actionSheet showFromToolbar:self.navigationController.toolbar];
+	
+	//SHKItem *item = [SHKItem image:qrImageview.image];
+	[NSClassFromString(@"SHKTwitter") performSelector:@selector(shareItem:) withObject:item];
+}
+
+-(IBAction)btnFacebookClicked
+{
+	//NSString *text=@"hello";
+	SHKItem *item = [SHKItem image:imgQR.image];
+	[NSClassFromString(@"SHKFacebook") performSelector:@selector(shareItem:) withObject:item];
+}
+
+/*
+// Override to allow orientations other than the default portrait orientation.
+- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
+    // Return YES for supported orientations.
+    return (interfaceOrientation == UIInterfaceOrientationPortrait);
+}
+*/
+
+- (void)didReceiveMemoryWarning {
+    // Releases the view if it doesn't have a superview.
+    [super didReceiveMemoryWarning];
+    
+    // Release any cached data, images, etc. that aren't in use.
+}
+
+- (void)viewDidUnload {
+    [super viewDidUnload];
+    // Release any retained subviews of the main view.
+    // e.g. self.myOutlet = nil;
+}
+
+
+- (void)dealloc {
+    [super dealloc];
+}
+
+
+@end

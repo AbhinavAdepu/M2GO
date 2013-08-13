@@ -1,0 +1,510 @@
+//
+//  ScanViewController.m
+//  KrenMarketing
+//
+//  Created by Ankit Vyas on 01/03/12.
+//  Copyright 2012 __MyCompanyName__. All rights reserved.
+//
+
+#import "ScanViewController.h"
+
+
+@implementation ScanViewController
+
+// The designated initializer.  Override if you create the controller programmatically and want to perform customization that is not appropriate for viewDidLoad.
+/*
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self) {
+        // Custom initialization.
+    }
+    return self;
+}
+*/
+
+-(void)viewWillAppear:(BOOL)animated
+{
+	btnPhotoAlbum.hidden = NO;
+	btnCamera.hidden = NO;
+	spinner.hidden = YES;
+	if(!readerView)
+	{
+	}
+	else 
+	{
+		[readerView setHidden:TRUE];
+	}	
+}
+// Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
+- (void)viewDidLoad 
+{
+	appDel = (KrenMarketingAppDelegate *)[[UIApplication sharedApplication]delegate];
+	
+	[[NSNotificationCenter defaultCenter] addObserver:self
+											 selector:@selector(Camera_PhotoAlbumOpen) 
+												 name:@"Camera_PhotoAlbumOpen"
+											   object:nil];
+	
+
+    [super viewDidLoad];
+}
+
+-(IBAction)PhotoLibrary_Clicked
+{
+	UIImagePickerController *controller = [[UIImagePickerController alloc] init];
+	[controller setDelegate:self];
+	[self presentModalViewController:controller animated:TRUE];
+}
+
+-(IBAction)getPhoto:(id)sender
+{
+	appDel.fromCamera = YES;
+	[self initReader: @"ZBarReaderController"];
+	[self updateCropMask];
+	UIImagePickerController *picker = [[UIImagePickerController alloc] init];
+	picker.delegate = self;
+	btnPhotoAlbum.hidden = YES;
+	btnCamera.hidden = YES;
+	
+	if((UIButton *)
+	   sender == btnCamera)
+	{
+		
+		
+		
+		
+		if([reader respondsToSelector: @selector(readerView)]) {
+			reader.readerView.showsFPS = YES;
+			if(zoom)
+				reader.readerView.zoom = zoom;
+			reader.supportedOrientationsMask = (reader.showsZBarControls)
+			? ZBarOrientationMaskAll
+			: ZBarOrientationMask(UIInterfaceOrientationPortrait); // tmp disable
+		}
+		//reader.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
+		if(reader.sourceType == UIImagePickerControllerSourceTypeCamera)
+			reader.cameraOverlayView = (reader.showsZBarControls) ? nil : overlay;
+		manualBtn.enabled = TARGET_IPHONE_SIMULATOR ||
+		(reader.cameraMode == ZBarReaderControllerCameraModeDefault) ||
+		[reader isKindOfClass: [ZBarReaderViewController class]];
+		
+		readerView.hidden=NO;
+		
+		readerView.userInteractionEnabled = NO;
+		readerView.readerDelegate = self;
+		[readerView start];
+		} else {
+		picker.sourceType = UIImagePickerControllerSourceTypeCamera;
+	}	
+}
+
+- (void) readerView: (ZBarReaderView*) view
+     didReadSymbols: (ZBarSymbolSet*) syms
+          fromImage: (UIImage*) img
+{
+	
+	
+	img_QR_Iphone = [img retain];
+	
+	GsymData = [(ZBarSymbolSet *)syms retain];
+	NSLog(@"GsymData==%@",GsymData);
+	
+	if(ctr == 0)
+	{
+		ctr++;
+		[self performSelector:@selector(showScannedresult) withObject:nil afterDelay:1.0];
+		
+	}
+	
+}
+
+-(IBAction)getPhotoAlbum:(id)sender
+{
+	spinner.hidden = NO;
+	appDel.fromCamera = NO;
+		[self initReader: @"ZBarReaderController"];
+		[self updateCropMask];
+		
+		UIImagePickerController *picker = [[UIImagePickerController alloc] init];
+		picker.delegate = self;
+		if((UIButton *) sender == btnPhotoAlbum) {
+			
+			if([reader respondsToSelector: @selector(readerView)]) {
+				reader.readerView.showsFPS = YES;
+				if(zoom)
+					reader.readerView.zoom = zoom;
+				reader.supportedOrientationsMask = (reader.showsZBarControls)
+				? ZBarOrientationMaskAll
+				: ZBarOrientationMask(UIInterfaceOrientationPortrait); // tmp disable
+			}
+			reader.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
+			if(reader.sourceType == UIImagePickerControllerSourceTypeCamera)
+				reader.cameraOverlayView = (reader.showsZBarControls) ? nil : overlay;
+			manualBtn.enabled = TARGET_IPHONE_SIMULATOR ||
+			(reader.cameraMode == ZBarReaderControllerCameraModeDefault) ||
+			[reader isKindOfClass: [ZBarReaderViewController class]];
+			reader.showsHelpOnFail = NO;
+			[self presentModalViewController:reader animated:TRUE];
+
+			} else {
+			picker.sourceType = UIImagePickerControllerSourceTypeCamera;
+		}
+	
+}
+#pragma mark QRSCanner 
+- (void) initReader: (NSString*) clsName
+{
+	ctr = 0;
+    [reader release];
+    Class cls = [[NSBundle mainBundle]
+				 classNamed: clsName];
+    assert(cls);
+    reader = [cls new];
+    assert(reader);
+    reader.readerDelegate = self;
+	readerView.readerDelegate = self;
+	
+	[ZBarReaderView class];
+	
+#if 0
+    // apply defaults for demo
+    ZBarImageScanner *scanner = reader.scanner;
+    continuous = NO;
+    zoom = 1;
+    reader.showsZBarControls = NO;
+	reader.rotating = NO;
+	reader.supportedOrientationsMask = 0;
+	//reader.cameraViewTransform = 
+    reader.scanCrop = CGRectMake(0, .35, 1, .3);
+	
+    [defaultSymbologies release];
+    defaultSymbologies =
+	[[NSSet alloc]
+	 initWithObjects:
+	 [NSNumber numberWithInteger: ZBAR_CODE128],
+	 nil];
+    [scanner setSymbology: 0
+				   config: ZBAR_CFG_ENABLE
+					   to: 0];
+    for(NSNumber *sym in defaultSymbologies)
+        [scanner setSymbology: sym.integerValue
+					   config: ZBAR_CFG_ENABLE
+						   to: 1];
+	
+    [scanner setSymbology: 0
+				   config: ZBAR_CFG_X_DENSITY
+					   to: (xDensity = 0)];
+    [scanner setSymbology: 0
+				   config: ZBAR_CFG_Y_DENSITY
+					   to: (yDensity = 1)];
+#endif
+}
+
+- (void) updateCropMask
+{
+    CGRect r = reader.scanCrop;
+    r.origin.x *= 426;
+    r.origin.y *= 320;
+    r.size.width *= 426;
+    r.size.height *= 320;
+    UIView *mask = [masks objectAtIndex: 0];
+    mask.frame = CGRectMake(0, -426, 320, r.origin.x);
+    mask = [masks objectAtIndex: 1];
+    mask.frame = CGRectMake(0, r.origin.x - 426, r.origin.y, r.size.width);
+	
+    r.origin.y += r.size.height;
+    mask = [masks objectAtIndex: 2];
+    mask.frame = CGRectMake(r.origin.y, r.origin.x - 426,
+                            320 - r.origin.y, r.size.width);
+	
+    r.origin.x += r.size.width;
+    mask = [masks objectAtIndex: 3];
+    mask.frame = CGRectMake(0, r.origin.x - 426, 320, 426 - r.origin.x);
+	[mask release];
+}
+
+
+#pragma mark imagePickerController
+
+- (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker
+{
+	spinner.hidden = YES;
+	[picker dismissModalViewControllerAnimated:YES];	
+}
+- (void)  imagePickerController: (UIImagePickerController*) picker
+  didFinishPickingMediaWithInfo: (NSDictionary*) info
+{
+	
+	[self dismissModalViewControllerAnimated:YES];
+	NSLog(@"info===>%@",[info allKeys]);
+    id <NSFastEnumeration> results =
+	[info objectForKey: ZBarReaderControllerResults];
+	ZBarSymbol *bestResult=[[[ZBarSymbol alloc]init] autorelease];
+	ZBarSymbol *sym=[[[ZBarSymbol alloc]init] autorelease];
+	
+    img_QR_Iphone = [info objectForKey: UIImagePickerControllerOriginalImage];
+	img_QR_Iphone = [[self imageWithImage:img_QR_Iphone scaledToSize:CGSizeMake(340, 255)]retain];
+		int quality = 0;
+    bestResult = nil;
+    for(sym in results) {
+        int q = sym.quality;
+        if(quality < q) {
+            quality = q;
+            bestResult = sym;
+        }
+    }
+	spinner.hidden = NO;
+    [self performSelector: @selector(presentResult:)
+			   withObject: bestResult
+			   afterDelay: .001];
+
+}
+
+-(void)showScannedresult
+{
+	
+	
+	NSString *data;
+	for(ZBarSymbol *sym in GsymData) {
+		NSLog(@"data=======>%@", sym.data);
+		data = sym.data;
+		
+	}
+	
+	readerView.hidden = YES;
+	spinner.hidden = NO;
+	scannedResultViewController = [[ScannedResultViewController alloc]initWithNibName:@"ScannedResultViewController" bundle:nil];
+	scannedResultViewController.img_iPhone_fromScan = img_QR_Iphone;
+	scannedResultViewController.result_scan = data;
+	
+	[self.navigationController pushViewController:scannedResultViewController animated:YES];
+	
+	
+}
+- (void) presentResult: (ZBarSymbol*) sym
+{
+	
+	//lblIntroImage.hidden = YES;
+	
+	//LBlHeading.text = @"Scan";
+    //found = sym || imageQR.image;
+    NSString *typeName = @"NONE";
+    NSString *data = @"";
+    if(sym) {
+        typeName = sym.typeName;
+        data = sym.data;
+    }
+	NSLog(@"data==%@",data);
+	spinner.hidden = NO;
+	scannedResultViewController = [[ScannedResultViewController alloc]initWithNibName:@"ScannedResultViewController" bundle:nil];
+	scannedResultViewController.img_iPhone_fromScan = img_QR_Iphone;
+	scannedResultViewController.result_scan = data;
+	[self.navigationController pushViewController:scannedResultViewController animated:YES];
+	
+	//[scannedResultViewController release];
+	/*  typeLabel.text = typeName;
+	 dataLabel.text = data;
+	 
+	 if(continuous) {
+	 typeOvl.text = typeName;
+	 dataOvl.text = data;
+	 }
+	 
+	 NSLog(@"imagePickerController:didFinishPickingMediaWithInfo:\n");
+	 NSLog(@"    type=%@ data=%@\n", typeName, data);
+	 
+	 CGSize size = [data sizeWithFont: [UIFont systemFontOfSize: 17]
+	 constrainedToSize: CGSizeMake(288, 2000)
+	 lineBreakMode: UILineBreakModeCharacterWrap];
+	 dataHeight = size.height + 26;
+	 if(dataHeight > 2000)
+	 dataHeight = 2000;
+	 
+	 //LabelQRCode.text=sym.data;
+	 if([[data substringToIndex:3] isEqualToString:@"htt"] || 
+	 [[data substringToIndex:3] isEqualToString:@"WWW"] ||
+	 [[data substringToIndex:3] isEqualToString:@"www"] )
+	 {
+	 LabelQRCode.textColor = [UIColor blueColor];
+	 LBlHeading.text = @"URL";
+	 }
+	 
+	 else {
+	 LabelQRCode.textColor = [UIColor blackColor];
+	 }
+	 
+	 //For Event
+	 if([[sym.data substringToIndex:15] isEqualToString:@"BEGIN:VCALENDAR"])
+	 {
+	 LBlHeading.text = @"Event";
+	 }
+	 if([[sym.data substringToIndex:11] isEqualToString:@"BEGIN:VCARD"])
+	 {
+	 LBlHeading.text = @"Contact";
+	 }
+	 
+	 data= [sym.data stringByReplacingOccurrencesOfString:@"DTSTART:" withString:@"\nStart Date & Time "];
+	 
+	 data= [data stringByReplacingOccurrencesOfString:@"DTEND:" withString:@"\nEnd Date & Time "];
+	 data= [data stringByReplacingOccurrencesOfString:@"BEGIN:VEVENT" withString:@""];
+	 data= [data stringByReplacingOccurrencesOfString:@"END:VEVENT" withString:@""];
+	 data= [data stringByReplacingOccurrencesOfString:@"SUMMARY:" withString:@"Event:"];
+	 data=[data stringByAppendingFormat:@"\n"];
+	 data= [data stringByReplacingOccurrencesOfString:@";" withString:@"\n"];
+	 appDel.QRScanText=LabelQRCode.text=data;
+	 
+	 //For SMS Data
+	 if([data length] > 6)
+	 
+	 //For SMS Data
+	 if([[sym.data substringToIndex:6] isEqualToString:@"SMSTO:"])
+	 {
+	 data= [sym.data stringByReplacingOccurrencesOfString:@"SMSTO:" withString:@"From: "];
+	 NSArray* components = [data componentsSeparatedByString:@":"];
+	 NSString *strTempSMS=@"";
+	 for(int i=0;i<[components count];i++)
+	 {
+	 if(i==[components count]-1)
+	 strTempSMS = [strTempSMS stringByAppendingFormat:@"\n%@",[components objectAtIndex:i]];
+	 else {
+	 if(i==0)
+	 strTempSMS = [strTempSMS stringByAppendingFormat:@"%@:",[components objectAtIndex:i]];
+	 else
+	 strTempSMS = [strTempSMS stringByAppendingFormat:@"%@",[components objectAtIndex:i]];
+	 
+	 }
+	 
+	 
+	 
+	 }
+	 appDel.QRScanText=LabelQRCode.text=strTempSMS;
+	 LBlHeading.text = @"SMS";
+	 }
+	 
+	 
+	 
+	 //For Mail
+	 if([data length] > 10)
+	 if([[data substringToIndex:10] isEqualToString:@"MATMSG:TO:"])
+	 {
+	 data= [data stringByReplacingOccurrencesOfString:@"MATMSG:TO:" withString:@"From: "];
+	 data = [data stringByAppendingFormat:@"\n"];
+	 data = [data stringByReplacingOccurrencesOfString:@"SUB:" withString:@"\nSubject: "];
+	 data = [data stringByAppendingFormat:@"\n"];
+	 data = [data stringByReplacingOccurrencesOfString:@"BODY:" withString:@"\n"];
+	 data = [data stringByReplacingOccurrencesOfString:@";" withString:@""];
+	 appDel.QRScanText=LabelQRCode.text=data;
+	 LBlHeading.text = @"Email";
+	 }
+	 
+	 if([[data substringToIndex:7] isEqualToString:@"MAILTO:"])
+	 {
+	 data= [data stringByReplacingOccurrencesOfString:@"MAILTO:" withString:@"From: "];
+	 LabelQRCode.text=data;
+	 LBlHeading.text = @"Email";
+	 }
+	 
+	 //For Tel NO
+	 if([data length] > 6)
+	 if([[data substringToIndex:6] isEqualToString:@"TEL NO"] ||
+	 [[data substringToIndex:4] isEqualToString:@"TEL:"] )
+	 {
+	 data= [data stringByReplacingOccurrencesOfString:@"TEL NO" withString:@"Phone: "];
+	 data= [data stringByReplacingOccurrencesOfString:@"TEL:" withString:@"Phone: "];
+	 appDel.QRScanText=LabelQRCode.text=data;
+	 LBlHeading.text = @"Phone";
+	 }
+	 
+	 if([LBlHeading.text isEqualToString:@"Scan"])
+	 LBlHeading.text = @"Text";
+	 
+	 LabelQRCode.hidden = FALSE;
+	 
+	 appDel.QRScanDate=dateLabel.text;
+	 //appDel.QRScanText=LabelQRCode.text=data;
+	 appDel.QRScanTime=TimeLabel.text;
+	 appDel.img.image = imageQR.image;
+	 
+	 appDel.catString = LBlHeading.text;
+	 [self selectcategory:imageQR.image];
+	 
+	 if(appDel.ori==UIInterfaceOrientationPortrait || appDel.ori == UIInterfaceOrientationPortraitUpsideDown)
+	 {
+	 
+	 [btnPhotoAlbum setImage:[UIImage imageNamed:@"SEL_PHOTOAlbum.png"] forState:UIControlStateNormal];
+	 
+	 }
+	 
+	 
+	 else{
+	 
+	 [btnPhotoAlbum setImage:[UIImage imageNamed:@"cmr (2).png"] forState:UIControlStateNormal];
+	 
+	 
+	 }
+	 /*UILabel *lbltemp = [[UILabel alloc]initWithFrame:CGRectMake(40, 214,800,60)];
+	 lbltemp.backgroundColor = [UIColor redColor];
+	 [self.view addSubview:lbltemp];
+	 [self.view bringSubviewToFront:LabelQRCode];*/
+	//[self saveQrCode];
+	
+	/*[typeLabel release];
+	 [dataLabel release];*/
+	
+}
+- (UIImage*)imageWithImage:(UIImage*)image 
+			  scaledToSize:(CGSize)newSize;
+{
+	UIGraphicsBeginImageContext( newSize );
+	[image drawInRect:CGRectMake(0,0,newSize.width,newSize.height)];
+	UIImage* newImage = UIGraphicsGetImageFromCurrentImageContext();
+	UIGraphicsEndImageContext();
+	
+	return newImage;
+}
+#pragma mark call Camera or photoalbumOpen
+-(void)Camera_PhotoAlbumOpen
+{
+	if(readerView)
+		readerView.hidden = YES;
+
+	NSLog(@"HERE");
+	 if(appDel.cameraOpen)
+	 {
+		 [self getPhoto:btnCamera];
+	 }
+	 if(appDel.photoalbumOpen)
+	 {
+		 [self getPhotoAlbum:btnPhotoAlbum];
+	 }
+}
+
+// Override to allow orientations other than the default portrait orientation.
+- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
+    // Return YES for supported orientations.
+	
+		NSLog(@"HERE1");
+    return (interfaceOrientation == UIInterfaceOrientationPortrait);
+}
+
+
+- (void)didReceiveMemoryWarning {
+    // Releases the view if it doesn't have a superview.
+    [super didReceiveMemoryWarning];
+    
+    // Release any cached data, images, etc. that aren't in use.
+}
+
+- (void)viewDidUnload {
+    [super viewDidUnload];
+    // Release any retained subviews of the main view.
+    // e.g. self.myOutlet = nil;
+}
+
+
+- (void)dealloc {
+    [super dealloc];
+}
+
+
+@end

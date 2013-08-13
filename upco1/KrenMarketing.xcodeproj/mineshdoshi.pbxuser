@@ -1,0 +1,216 @@
+// !$*UTF8*$!
+{
+	1D6058900D05DD3D006BFB54 /* KrenMarketing */ = {
+		activeExec = 0;
+		executables = (
+			76AC53811471196C000AE97F /* KrenMarketing */,
+		);
+	};
+	29B97313FDCFA39411CA2CEA /* Project object */ = {
+		activeBuildConfigurationName = Debug;
+		activeExecutable = 76AC53811471196C000AE97F /* KrenMarketing */;
+		activeTarget = 1D6058900D05DD3D006BFB54 /* KrenMarketing */;
+		breakpoints = (
+		);
+		codeSenseManager = 76AC539414711983000AE97F /* Code sense */;
+		executables = (
+			76AC53811471196C000AE97F /* KrenMarketing */,
+		);
+		perUserDictionary = {
+			PBXConfiguration.PBXFileTableDataSource3.PBXFileTableDataSource = {
+				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
+				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Filename_ColumnID;
+				PBXFileTableDataSourceColumnWidthsKey = (
+					20,
+					627,
+					20,
+					48.16259765625,
+					43,
+					43,
+					20,
+				);
+				PBXFileTableDataSourceColumnsKey = (
+					PBXFileDataSource_FiletypeID,
+					PBXFileDataSource_Filename_ColumnID,
+					PBXFileDataSource_Built_ColumnID,
+					PBXFileDataSource_ObjectSize_ColumnID,
+					PBXFileDataSource_Errors_ColumnID,
+					PBXFileDataSource_Warnings_ColumnID,
+					PBXFileDataSource_Target_ColumnID,
+				);
+			};
+			PBXPerProjectTemplateStateSaveDate = 343045534;
+			PBXWorkspaceStateSaveDate = 343045534;
+		};
+		perUserProjectItems = {
+			76AC53B914711B8F000AE97F = 76AC53B914711B8F000AE97F /* PBXTextBookmark */;
+			76AC53BA14711B8F000AE97F = 76AC53BA14711B8F000AE97F /* PBXTextBookmark */;
+			76AC53BB14711B8F000AE97F = 76AC53BB14711B8F000AE97F /* PBXTextBookmark */;
+			76AC53BC14711B8F000AE97F = 76AC53BC14711B8F000AE97F /* PBXTextBookmark */;
+			76AC53BD14711B8F000AE97F = 76AC53BD14711B8F000AE97F /* PBXTextBookmark */;
+			76AC53BE14711B8F000AE97F = 76AC53BE14711B8F000AE97F /* PBXTextBookmark */;
+			76AC53BF14711B8F000AE97F = 76AC53BF14711B8F000AE97F /* PBXTextBookmark */;
+			76AC53C414711BD0000AE97F = 76AC53C414711BD0000AE97F /* PBXTextBookmark */;
+		};
+		sourceControlManager = 76AC539314711983000AE97F /* Source Control */;
+		userBuildSettings = {
+		};
+	};
+	2B8268101470E8620078233C /* KrenMarketingAppDelegate.h */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {805, 563}}";
+			sepNavSelRange = "{0, 0}";
+			sepNavVisRange = "{0, 519}";
+		};
+	};
+	2B8268111470E8620078233C /* KrenMarketingAppDelegate.m */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {1965, 1335}}";
+			sepNavSelRange = "{0, 0}";
+			sepNavVisRange = "{0, 1257}";
+		};
+	};
+	2B8268141470E8620078233C /* KrenMarketingViewController.h */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {805, 563}}";
+			sepNavSelRange = "{261, 0}";
+			sepNavVisRange = "{0, 261}";
+		};
+	};
+	2B8268151470E8620078233C /* KrenMarketingViewController.m */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {805, 870}}";
+			sepNavSelRange = "{780, 0}";
+			sepNavVisRange = "{251, 1073}";
+		};
+	};
+	76AC53811471196C000AE97F /* KrenMarketing */ = {
+		isa = PBXExecutable;
+		activeArgIndices = (
+		);
+		argumentStrings = (
+		);
+		autoAttachOnCrash = 1;
+		breakpointsEnabled = 0;
+		configStateDict = {
+		};
+		customDataFormattersEnabled = 1;
+		dataTipCustomDataFormattersEnabled = 1;
+		dataTipShowTypeColumn = 1;
+		dataTipSortType = 0;
+		debuggerPlugin = GDBDebugging;
+		disassemblyDisplayState = 0;
+		dylibVariantSuffix = "";
+		enableDebugStr = 1;
+		environmentEntries = (
+		);
+		executableSystemSymbolLevel = 0;
+		executableUserSymbolLevel = 0;
+		libgmallocEnabled = 0;
+		name = KrenMarketing;
+		savedGlobals = {
+		};
+		showTypeColumn = 0;
+		sourceDirectories = (
+		);
+		variableFormatDictionary = {
+		};
+	};
+	76AC539314711983000AE97F /* Source Control */ = {
+		isa = PBXSourceControlManager;
+		fallbackIsa = XCSourceControlManager;
+		isSCMEnabled = 0;
+		scmConfiguration = {
+			repositoryNamesForRoots = {
+				"" = "";
+			};
+		};
+	};
+	76AC539414711983000AE97F /* Code sense */ = {
+		isa = PBXCodeSenseManager;
+		indexTemplatePath = "";
+	};
+	76AC53B914711B8F000AE97F /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 2B8268141470E8620078233C /* KrenMarketingViewController.h */;
+		name = "KrenMarketingViewController.h: 18";
+		rLen = 0;
+		rLoc = 261;
+		rType = 0;
+		vrLen = 261;
+		vrLoc = 0;
+	};
+	76AC53BA14711B8F000AE97F /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 2B8268101470E8620078233C /* KrenMarketingAppDelegate.h */;
+		name = "KrenMarketingAppDelegate.h: 1";
+		rLen = 0;
+		rLoc = 0;
+		rType = 0;
+		vrLen = 519;
+		vrLoc = 0;
+	};
+	76AC53BB14711B8F000AE97F /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 2B8268111470E8620078233C /* KrenMarketingAppDelegate.m */;
+		name = "KrenMarketingAppDelegate.m: 1";
+		rLen = 0;
+		rLoc = 0;
+		rType = 0;
+		vrLen = 1257;
+		vrLoc = 0;
+	};
+	76AC53BC14711B8F000AE97F /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		name = "Firstviewcontroller.h: 1";
+		rLen = 0;
+		rLoc = 0;
+		rType = 0;
+		vrLen = 244;
+		vrLoc = 0;
+	};
+	76AC53BD14711B8F000AE97F /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		name = "Firstviewcontroller.m: 1";
+		rLen = 0;
+		rLoc = 0;
+		rType = 0;
+		vrLen = 837;
+		vrLoc = 625;
+	};
+	76AC53BE14711B8F000AE97F /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 2B8268151470E8620078233C /* KrenMarketingViewController.m */;
+		name = "KrenMarketingViewController.m: 26";
+		rLen = 0;
+		rLoc = 591;
+		rType = 0;
+		vrLen = 1118;
+		vrLoc = 206;
+	};
+	76AC53BF14711B8F000AE97F /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 2B8268151470E8620078233C /* KrenMarketingViewController.m */;
+		name = "KrenMarketingViewController.m: 26";
+		rLen = 0;
+		rLoc = 591;
+		rType = 0;
+		vrLen = 895;
+		vrLoc = 589;
+	};
+	76AC53C414711BD0000AE97F /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 2B8268151470E8620078233C /* KrenMarketingViewController.m */;
+		name = "KrenMarketingViewController.m: 30";
+		rLen = 0;
+		rLoc = 780;
+		rType = 0;
+		vrLen = 1073;
+		vrLoc = 251;
+	};
+	8D1107310486CEB800E47090 /* KrenMarketing-Info.plist */ = {
+		uiCtxt = {
+			sepNavWindowFrame = "{{79, 92}, {1280, 834}}";
+		};
+	};
+}

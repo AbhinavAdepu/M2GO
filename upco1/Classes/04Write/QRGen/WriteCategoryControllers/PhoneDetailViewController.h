@@ -1,0 +1,30 @@
+//
+//  PhoneDetailViewController.h
+//  KrenMarketing
+//
+//  Created by Jayna Gandhi on 03/03/12.
+//  Copyright 2012 __MyCompanyName__. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+
+@interface PhoneDetailViewController : UIViewController 
+{
+	IBOutlet UILabel *lblHeader;
+	IBOutlet UIImageView *ImageQRCode;
+	IBOutlet UIButton *BtnEncode;
+	IBOutlet UITextField *txtPhone;
+	
+	UILabel *dateLabel;
+	UILabel *TimeLabel;
+	NSMutableAttributedString *strattr;
+	int height;
+	NSString *sampleString;
+    BOOL flagphon;
+}
+-(IBAction)GenerateQrCode;
+-(IBAction)BackToRoot;
+-(void)textFieldDidChange:(id)sender;
+
+@end

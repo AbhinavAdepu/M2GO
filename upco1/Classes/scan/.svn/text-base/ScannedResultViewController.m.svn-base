@@ -1,0 +1,442 @@
+//
+//  ScannedResultViewController.m
+//  KrenMarketing
+//
+//  Created by Ankit Vyas on 02/03/12.
+//  Copyright 2012 __MyCompanyName__. All rights reserved.
+//
+
+#import "ScannedResultViewController.h"
+#import <MessageUI/MFMailComposeViewController.h>
+#import "SHKItem.h"
+#import "DAL.h"
+
+
+@implementation ScannedResultViewController
+@synthesize img_iPhone_fromScan,result_scan;
+// The designated initializer.  Override if you create the controller programmatically and want to perform customization that is not appropriate for viewDidLoad.
+/*
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self) {
+        // Custom initialization.
+    }
+    return self;
+}
+*/
+
+-(void)viewWillAppear:(BOOL)animated
+{
+	
+}
+
+
+
+// Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
+- (void)viewDidLoad {
+	appDel = (KrenMarketingAppDelegate *)[[UIApplication sharedApplication]delegate];
+	imgView_scanQR.image = img_iPhone_fromScan;
+	//result_scan = [[NSMutableString alloc] initWithString:@""];
+	
+	if(appDel.fromCamera)
+	{
+		btnBackTOsmwhere.frame = CGRectMake(btnBackTOsmwhere.frame.origin.x, btnBackTOsmwhere.frame.origin.y, 26, 23);
+		[btnBackTOsmwhere setImage:[UIImage imageNamed:@"iphone_Camera Roll_Icon.png"] forState:UIControlStateNormal];
+	}
+	else
+	{
+		btnBackTOsmwhere.frame = CGRectMake(btnBackTOsmwhere.frame.origin.x, btnBackTOsmwhere.frame.origin.y, 28, 21);
+		[btnBackTOsmwhere setImage:[UIImage imageNamed:@"iphone_Camera_Icon.png"] forState:UIControlStateNormal];
+	}
+	
+	
+	if([[result_scan substringToIndex:3] isEqualToString:@"htt"] || 
+	   [[result_scan substringToIndex:3] isEqualToString:@"WWW"] ||
+	   [[result_scan substringToIndex:3] isEqualToString:@"www"] )
+	{
+			lblHeading.text = @"URL";
+	}
+	
+	//For Event
+	if([result_scan length] > 15)
+	if([[result_scan substringToIndex:15] isEqualToString:@"BEGIN:VCALENDAR"])
+	{
+		lblHeading.text = @"Event";
+	}
+	if([result_scan length] > 11)
+	if([[result_scan substringToIndex:11] isEqualToString:@"BEGIN:VCARD"])
+	{
+		lblHeading.text = @"Contact";
+	}
+	
+	result_scan= [result_scan stringByReplacingOccurrencesOfString:@"DTSTART:" withString:@"\nStart Date & Time "];
+	
+	result_scan= [result_scan stringByReplacingOccurrencesOfString:@"DTEND:" withString:@"\nEnd Date & Time "];
+	result_scan= [result_scan stringByReplacingOccurrencesOfString:@"BEGIN:VEVENT" withString:@""];
+	result_scan= [result_scan stringByReplacingOccurrencesOfString:@"END:VEVENT" withString:@""];
+	result_scan= [result_scan stringByReplacingOccurrencesOfString:@"SUMMARY:" withString:@"Event:"];
+	result_scan=[result_scan stringByAppendingFormat:@"\n"];
+	result_scan= [result_scan stringByReplacingOccurrencesOfString:@";" withString:@"\n"];
+	
+	ScanDataLabel.text = result_scan;
+	
+	//For SMS Data
+	if([result_scan length] > 6)
+		
+		//For SMS Data
+		if([[result_scan substringToIndex:6] isEqualToString:@"SMSTO:"])
+		{
+			result_scan= [result_scan stringByReplacingOccurrencesOfString:@"SMSTO:" withString:@"From: "];
+			NSArray* components = [result_scan componentsSeparatedByString:@":"];
+			NSString *strTempSMS=@"";
+			for(int i=0;i<[components count];i++)
+			{
+				if(i==[components count]-1)
+					strTempSMS = [strTempSMS stringByAppendingFormat:@"\n%@",[components objectAtIndex:i]];
+				else {
+					if(i==0)
+						strTempSMS = [strTempSMS stringByAppendingFormat:@"%@:",[components objectAtIndex:i]];
+					else
+						strTempSMS = [strTempSMS stringByAppendingFormat:@"%@",[components objectAtIndex:i]];
+					
+				}
+				
+				
+				
+			}
+			ScanDataLabel.text = strTempSMS;
+			lblHeading.text = @"SMS";
+		}
+	
+	
+	
+	//For Mail
+	if([result_scan length] > 10)
+		if([[result_scan substringToIndex:10] isEqualToString:@"MATMSG:TO:"])
+		{
+			result_scan= [result_scan stringByReplacingOccurrencesOfString:@"MATMSG:TO:" withString:@"From: "];
+			result_scan = [result_scan stringByAppendingFormat:@"\n"];
+			result_scan = [result_scan stringByReplacingOccurrencesOfString:@"SUB:" withString:@"\nSubject: "];
+			result_scan = [result_scan stringByAppendingFormat:@"\n"];
+			result_scan = [result_scan stringByReplacingOccurrencesOfString:@"BODY:" withString:@"\n"];
+			result_scan = [result_scan stringByReplacingOccurrencesOfString:@";" withString:@""];
+			ScanDataLabel.text = result_scan;
+			lblHeading.text = @"Email";
+		}
+	
+	if([[result_scan substringToIndex:7] isEqualToString:@"MAILTO:"])
+	{
+		result_scan= [result_scan stringByReplacingOccurrencesOfString:@"MAILTO:" withString:@"From: "];
+		ScanDataLabel.text=result_scan;
+		lblHeading.text = @"Email";
+	}
+	
+	//For Tel NO
+	if([result_scan length] > 6)
+		if([[result_scan substringToIndex:6] isEqualToString:@"TEL NO"] ||
+		   [[result_scan substringToIndex:4] isEqualToString:@"TEL:"] )
+		{
+			
+			result_scan= [result_scan stringByReplacingOccurrencesOfString:@"TEL NO" withString:@"Phone Number:  "];
+			result_scan= [result_scan stringByReplacingOccurrencesOfString:@"TEL:" withString:@"Phone Number:  "];
+			
+			NSMutableAttributedString *strattr = [NSMutableAttributedString attributedStringWithString:result_scan];
+			[strattr setTextColor:[UIColor blackColor]];
+			[strattr setFontFamily:@"Helvetica" size:18 bold:NO italic:NO range:[result_scan rangeOfString:result_scan]];
+			
+			if([result_scan length] > 0)
+			{
+				[strattr setTextBold:YES range:[result_scan rangeOfString:@"Phone Number: "]];
+			}			
+			ScanDataLabel.attributedText = strattr;
+			lblHeading.text = @"Phone";
+		}
+	
+	if([lblHeading.text isEqualToString:@"Scan"])
+		lblHeading.text = @"Text";
+
+	
+	CGFloat height = 0;
+	CGSize maximumLabelSize1 = CGSizeMake(280,9999);
+	CGSize expectedLabelSize1 = [result_scan sizeWithFont:[UIFont fontWithName:@"Helvetica" size:14] constrainedToSize:maximumLabelSize1 lineBreakMode:UILineBreakModeWordWrap];
+	height = expectedLabelSize1.height;
+	ScanDataLabel.frame = CGRectMake(ScanDataLabel.frame.origin.x, ScanDataLabel.frame.origin.y, 280, height);
+	
+	
+	ScanDataLabel.text = result_scan;
+	
+	ScrScanResult.contentSize = CGSizeMake(320,height+130);
+	
+	[self TimeandDate];
+	
+	
+	alert_SaveQR = [[UIAlertView alloc]initWithTitle:@"Save QR Code to Library"
+												   message:@"Do you want to save this QR Code to the Library?" 
+												  delegate:self 
+										 cancelButtonTitle:@"Save"
+										 otherButtonTitles:@"Don't Save",nil];
+	[alert_SaveQR show];
+	[alert_SaveQR release];
+    [super viewDidLoad];
+}
+
+#pragma mark TIME & DATE
+-(void)TimeandDate{
+	//Date
+	NSDate* date = [NSDate date];
+	NSDateFormatter *Date1=[[[NSDateFormatter alloc] init] autorelease];
+	
+	[Date1 setDateFormat:@"E MM/dd/yy"];
+	
+	
+	NSString *Date12=[Date1 stringFromDate:date];	
+	NSLog(@"Date: %@", Date12);
+	//Time
+	NSDateFormatter *Time1=[[[NSDateFormatter alloc] init] autorelease];
+	[Time1 setDateFormat:@"h:MM aa"];
+	NSString *Time12=[Time1 stringFromDate:date];
+	
+	NSLog(@"Date: %@",Time12);
+	
+	
+	Date12 = [NSString stringWithFormat:@"Scanned on %@",Date12];
+	
+	[dtLabel setText:Date12];
+	[TimeLabel setText:Time12];
+	appDel.QRScanDate = dtLabel.text;
+	
+}
+
+-(IBAction)btnBackPressed:(id)sender
+{
+	[self.navigationController popViewControllerAnimated:YES];
+}
+
+#pragma mark Shareing options
+-(IBAction)DeleteQRCode
+{
+	NSString *sql = [NSString stringWithFormat:@"select Image from library where Image =(SELECT MAX(Image) from library)"];
+	NSMutableArray *array=[DAL ExecuteArraySet:sql];
+	
+	NSString  *sql1 =[NSString stringWithFormat:@"delete from library where Image = '%@' ",[NSString stringWithFormat:@"%@",[[array objectAtIndex:0] valueForKey:@"Image"]]];
+	
+	[DAL ExecuteArraySet:sql1];
+	
+	NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+	NSString *documentsDirectory = [paths objectAtIndex:0];
+	NSString * pdfname = [documentsDirectory stringByAppendingPathComponent:[NSString stringWithFormat:@"%@",[[array objectAtIndex:0] valueForKey:@"Image"]]];	
+	[[NSFileManager defaultManager] removeItemAtPath:pdfname error:nil];
+	
+	[[NSNotificationCenter defaultCenter] postNotificationName:@"ReloadData" object:nil];
+	
+	[self.navigationController popViewControllerAnimated:TRUE];
+}
+-(IBAction)btnTwitterClicked:(id)sender
+{
+	NSString *text=@"hello";
+	SHKItem *item = [SHKItem image:img_iPhone_fromScan title:nil];
+	[NSClassFromString(@"SHKTwitter") performSelector:@selector(shareItem:) withObject:item];
+}
+
+-(IBAction)btnFacebookClicked:(id)sender
+{
+	NSString *text=@"hello";
+	SHKItem *item = [SHKItem image:img_iPhone_fromScan];
+	[NSClassFromString(@"SHKFacebook") performSelector:@selector(shareItem:) withObject:item];
+}
+
+-(IBAction)btnEmailClicked:(id)sender
+{
+	Class mailClass = (NSClassFromString(@"MFMailComposeViewController"));
+	
+	if (mailClass != nil)
+	{
+		// We must always check whether the current device is configured for sending emails
+		if ([mailClass canSendMail])
+		{
+			[self displayComposerSheet];
+		}
+		else
+		{
+			[self launchMailAppOnDevice];
+		}
+	}
+	else
+	{
+		[self launchMailAppOnDevice];
+	}
+}
+
+-(void)displayComposerSheet
+{
+	
+	MFMailComposeViewController *picker = [[MFMailComposeViewController alloc] init];
+	picker.mailComposeDelegate = self;
+	
+		
+	NSData *imgData = UIImagePNGRepresentation(img_iPhone_fromScan);
+	[picker addAttachmentData:imgData mimeType:@"image/png" fileName:@"Result"];//[tmpBody release];
+	
+	[appDel.iphonerootController presentModalViewController:picker animated:YES];
+
+}
+
+// Launches the Mail application on the device.
+-(void)launchMailAppOnDevice
+{
+	NSString *recipients = @"mailto:jayna.gandhi@silvertouch.com?cc=second@example.com,third@example.com&subject=Hello from California!";
+	NSString *body = @"&body=It is raining in sunny California!";
+	
+	NSString *email = [NSString stringWithFormat:@"%@%@", recipients, body];
+	email = [email stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+	
+	[[UIApplication sharedApplication] openURL:[NSURL URLWithString:email]];
+}
+
+// Dismisses the email composition interface when users tap Cancel or Send. Proceeds to update the message field with the result of the operation.
+- (void)mailComposeController:(MFMailComposeViewController*)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError*)error 
+{	
+	//message.hidden = NO;
+	
+	[appDel.iphonerootController dismissModalViewControllerAnimated:YES];
+}
+
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
+{
+	if(buttonIndex == 0)
+		[self saveQrCode];
+		//[self performSelectorInBackground:@selector(saveQrCode) withObject:nil];
+	
+}
+#pragma mark saveQrCode screen
+-(void)saveQrCode
+{
+	UIImage *imageQR = imgView_scanQR.image;
+	NSDateFormatter* dateFormatter = [[NSDateFormatter alloc] init];
+	[dateFormatter setDateFormat:@"MM-dd-yyyy-HH-mm-ss"];
+	NSString * date = [dateFormatter stringFromDate:[NSDate date]];
+	
+		
+	NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+	NSString *documentsDirectory = [paths objectAtIndex:0];
+	NSString* path = [documentsDirectory stringByAppendingPathComponent: 
+					  [NSString stringWithFormat:@"qr%@.png",date]];
+	NSData* data = UIImagePNGRepresentation(imageQR);
+	[data writeToFile:path atomically:YES];
+	
+    NSMutableString *tmpDatastr = ScanDataLabel.text;
+	
+	//For SMS Data
+	if([tmpDatastr length] > 4)
+	{
+		//For SMS Data
+		if([[tmpDatastr substringToIndex:6] isEqualToString:@"From: "])
+		{
+			tmpDatastr= [tmpDatastr stringByReplacingOccurrencesOfString:@"From: " withString:@""];
+			
+		}
+	
+	}
+	//For Phone Data
+	if([tmpDatastr length] > 4)
+	{
+		//For Phone Data
+		if([[tmpDatastr substringToIndex:8] isEqualToString:@"Phone Number:  "])
+		{
+			tmpDatastr= [tmpDatastr stringByReplacingOccurrencesOfString:@"Phone Number:  " withString:@""];
+			
+		}
+		
+	}
+	
+	//For Mail
+	if([tmpDatastr length] > 5)
+		if([[tmpDatastr substringToIndex:6] isEqualToString:@"From: "])
+		{
+			tmpDatastr= [tmpDatastr stringByReplacingOccurrencesOfString:@"From: " withString:@""];
+			tmpDatastr = [tmpDatastr stringByAppendingFormat:@"\n"];
+			tmpDatastr = [tmpDatastr stringByReplacingOccurrencesOfString:@"Subject: " withString:@""];
+			tmpDatastr = [tmpDatastr stringByAppendingFormat:@"\n"];
+		
+			
+		}
+	
+	if([[tmpDatastr substringToIndex:6] isEqualToString:@"From: "])
+	{
+		tmpDatastr= [tmpDatastr stringByReplacingOccurrencesOfString:@"From: " withString:@""];
+		
+	}
+	
+	//For Event
+	/*if([tmpDatastr length] > 15)
+		if([[tmpDatastr substringToIndex:15] isEqualToString:@"BEGIN:VCALENDAR"])
+		{
+			tmpDatastr= [tmpDatastr stringByReplacingOccurrencesOfString:@"BEGIN:VCALENDAR" withString:@""];
+
+		}
+	if([tmpDatastr length] > 11)
+		if([[tmpDatastr substringToIndex:11] isEqualToString:@"BEGIN:VCARD"])
+		{
+			tmpDatastr= [tmpDatastr stringByReplacingOccurrencesOfString:@"BEGIN:VCARD" withString:@""];
+
+		}
+	
+	*/
+	
+	[DAL insert_library_CreatedDate:appDel.QRScanDate Image:[NSString stringWithFormat:@"qr%@.png",date]  Category:lblHeading.text Description:tmpDatastr starting_Date:@"" Ending_Date:@"" Address:@"" Links:@"" Email:@"" Locations:@"" Message:@"" Department:@"" Job:@"" Suffix:@"" MiddleName:@"" LastName:@"" FirstName:@"" Prefix:@"" PhoneNo:@"" Subject:@"" Notes:@""];
+	
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:@"ReloadData" object:nil];
+	[[NSNotificationCenter defaultCenter] postNotificationName:@"ReloadData" object:nil];
+
+}
+
+-(IBAction)btnBack_CameraView:(id)sender
+{
+	
+	[self.navigationController popViewControllerAnimated:YES];
+	
+	if(appDel.fromCamera)
+	{
+		appDel.photoalbumOpen = YES;
+		appDel.cameraOpen = NO;
+	}
+	else
+	{
+		appDel.photoalbumOpen = NO;
+		appDel.cameraOpen = YES;
+	}
+	NSLog(@"BAck to PhotoLib");
+	
+	[[NSNotificationCenter defaultCenter] postNotificationName:@"Camera_PhotoAlbumOpen" object:nil];
+
+	
+
+	
+}
+// Override to allow orientations other than the default portrait orientation.
+- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
+    // Return YES for supported orientations.
+    return (interfaceOrientation == UIInterfaceOrientationPortrait);
+}
+
+
+- (void)didReceiveMemoryWarning {
+    // Releases the view if it doesn't have a superview.
+    [super didReceiveMemoryWarning];
+    
+    // Release any cached data, images, etc. that aren't in use.
+}
+
+- (void)viewDidUnload {
+    [super viewDidUnload];
+    // Release any retained subviews of the main view.
+    // e.g. self.myOutlet = nil;
+}
+
+
+- (void)dealloc {
+    [super dealloc];
+}
+
+
+@end

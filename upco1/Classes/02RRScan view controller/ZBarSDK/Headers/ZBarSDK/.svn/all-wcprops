@@ -1,0 +1,71 @@
+K 25
+svn:wc:ra_dav:version-url
+V 160
+/svn/kerinmarketing/!svn/ver/389/KerenMarketingiPhonebackups/300312/KerinMarketing%2020-iphone-7mar/Classes/02RRScan%20view%20controller/ZBarSDK/Headers/ZBarSDK
+END
+ZBarHelpController.h
+K 25
+svn:wc:ra_dav:version-url
+V 181
+/svn/kerinmarketing/!svn/ver/389/KerenMarketingiPhonebackups/300312/KerinMarketing%2020-iphone-7mar/Classes/02RRScan%20view%20controller/ZBarSDK/Headers/ZBarSDK/ZBarHelpController.h
+END
+ZBarImageScanner.h
+K 25
+svn:wc:ra_dav:version-url
+V 179
+/svn/kerinmarketing/!svn/ver/389/KerenMarketingiPhonebackups/300312/KerinMarketing%2020-iphone-7mar/Classes/02RRScan%20view%20controller/ZBarSDK/Headers/ZBarSDK/ZBarImageScanner.h
+END
+ZBarReaderView.h
+K 25
+svn:wc:ra_dav:version-url
+V 177
+/svn/kerinmarketing/!svn/ver/389/KerenMarketingiPhonebackups/300312/KerinMarketing%2020-iphone-7mar/Classes/02RRScan%20view%20controller/ZBarSDK/Headers/ZBarSDK/ZBarReaderView.h
+END
+zbar.h
+K 25
+svn:wc:ra_dav:version-url
+V 167
+/svn/kerinmarketing/!svn/ver/389/KerenMarketingiPhonebackups/300312/KerinMarketing%2020-iphone-7mar/Classes/02RRScan%20view%20controller/ZBarSDK/Headers/ZBarSDK/zbar.h
+END
+ZBarReaderViewController.h
+K 25
+svn:wc:ra_dav:version-url
+V 187
+/svn/kerinmarketing/!svn/ver/389/KerenMarketingiPhonebackups/300312/KerinMarketing%2020-iphone-7mar/Classes/02RRScan%20view%20controller/ZBarSDK/Headers/ZBarSDK/ZBarReaderViewController.h
+END
+ZBarSDK.h
+K 25
+svn:wc:ra_dav:version-url
+V 170
+/svn/kerinmarketing/!svn/ver/389/KerenMarketingiPhonebackups/300312/KerinMarketing%2020-iphone-7mar/Classes/02RRScan%20view%20controller/ZBarSDK/Headers/ZBarSDK/ZBarSDK.h
+END
+ZBarImage.h
+K 25
+svn:wc:ra_dav:version-url
+V 172
+/svn/kerinmarketing/!svn/ver/389/KerenMarketingiPhonebackups/300312/KerinMarketing%2020-iphone-7mar/Classes/02RRScan%20view%20controller/ZBarSDK/Headers/ZBarSDK/ZBarImage.h
+END
+ZBarSymbol.h
+K 25
+svn:wc:ra_dav:version-url
+V 173
+/svn/kerinmarketing/!svn/ver/389/KerenMarketingiPhonebackups/300312/KerinMarketing%2020-iphone-7mar/Classes/02RRScan%20view%20controller/ZBarSDK/Headers/ZBarSDK/ZBarSymbol.h
+END
+ZBarCaptureReader.h
+K 25
+svn:wc:ra_dav:version-url
+V 180
+/svn/kerinmarketing/!svn/ver/389/KerenMarketingiPhonebackups/300312/KerinMarketing%2020-iphone-7mar/Classes/02RRScan%20view%20controller/ZBarSDK/Headers/ZBarSDK/ZBarCaptureReader.h
+END
+ZBarReaderController.h
+K 25
+svn:wc:ra_dav:version-url
+V 183
+/svn/kerinmarketing/!svn/ver/389/KerenMarketingiPhonebackups/300312/KerinMarketing%2020-iphone-7mar/Classes/02RRScan%20view%20controller/ZBarSDK/Headers/ZBarSDK/ZBarReaderController.h
+END
+ZBarCameraSimulator.h
+K 25
+svn:wc:ra_dav:version-url
+V 182
+/svn/kerinmarketing/!svn/ver/389/KerenMarketingiPhonebackups/300312/KerinMarketing%2020-iphone-7mar/Classes/02RRScan%20view%20controller/ZBarSDK/Headers/ZBarSDK/ZBarCameraSimulator.h
+END

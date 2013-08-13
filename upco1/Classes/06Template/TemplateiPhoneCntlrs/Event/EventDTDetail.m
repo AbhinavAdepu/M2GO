@@ -1,0 +1,390 @@
+//
+//  EventDTDetail.m
+//  KrenMarketing
+//
+//  Created by Ankit Vyas on 03/03/12.
+//  Copyright 2012 __MyCompanyName__. All rights reserved.
+//
+
+#import "EventDTDetail.h"
+#import "StartEndDayController.h"
+#import "ImageProcessingView_iPhone.h"
+
+#define CHAR @"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ " " "
+#define ZIP @" 1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-"
+
+@implementation EventDTDetail
+@synthesize image_Card,btnIndex,strFlag;
+// The designated initializer.  Override if you create the controller programmatically and want to perform customization that is not appropriate for viewDidLoad.
+/*
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self) {
+        // Custom initialization.
+    }
+    return self;
+}
+*/
+
+
+// Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
+- (void)viewDidLoad {
+	
+	if([tv_Notes.text length]>0)
+	{}
+	else 
+	{
+		lblPlaceholder.hidden = NO;
+	}
+	tv_Notes.font = [UIFont fontWithName:@"Helvetica" size:16.0];
+	scr_EventView.contentSize = CGSizeMake(320,700);
+    [super viewDidLoad];
+}
+-(void)viewWillAppear:(BOOL)animated
+{
+	appDel = (KrenMarketingAppDelegate *)[[UIApplication sharedApplication]delegate];
+	tv_Notes.font = [UIFont fontWithName:@"Helvetica" size:16.0];
+	if(appDel.QRImageFromLib)
+		[btnQRCode setBackgroundImage:appDel.QRImageFromLib forState:UIControlStateNormal];
+	else {
+		[btnQRCode setBackgroundImage:[UIImage imageNamed:@"ivBackground.png"] forState:UIControlStateNormal];
+	}
+	
+	
+	///// For Add Gestures /////////
+	UILongPressGestureRecognizer *longpressGestureEvent = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(longPressHandler:)];
+    longpressGestureEvent.minimumPressDuration = 1;
+    [longpressGestureEvent setDelegate:self];
+	[btnQRCode addGestureRecognizer:longpressGestureEvent];
+	[longpressGestureEvent release];
+
+}
+-(IBAction)btnHomePressed:(id)sender
+{
+	[self.navigationController popToViewController:[[self.navigationController viewControllers]objectAtIndex:1] animated:YES];
+}
+-(IBAction)btnEndDateClicked:(id)sender
+{
+	strFlagForTextfield = @"End";
+	StartEndDayController* objStartEndDayController=[[StartEndDayController alloc] initWithNibName:@"StartEndDayController" bundle:[NSBundle mainBundle]];
+	objStartEndDayController.delegate = self;
+	objStartEndDayController.isFrom=@"TM";
+	objStartEndDayController.selectedDate=@"end";
+	//UINavigationController* tempNav=[[UINavigationController alloc] initWithRootViewController:objStartEndDayController];
+	[self presentModalViewController:objStartEndDayController animated:YES];
+	
+}
+
+
+-(IBAction)btnStartDateClicked:(id)sender
+{
+	strFlagForTextfield = @"Start";
+	StartEndDayController* objStartEndDayController=[[StartEndDayController alloc] initWithNibName:@"StartEndDayController" bundle:[NSBundle mainBundle]];
+	objStartEndDayController.delegate = self;
+	objStartEndDayController.isFrom=@"TM";
+	objStartEndDayController.selectedDate=@"start";
+	//UINavigationController* tempNav=[[UINavigationController alloc] initWithRootViewController:objStartEndDayController];
+[self presentModalViewController:objStartEndDayController animated:YES];
+	
+}
+
+-(IBAction)btnContinueClicked:(id)sender
+{
+	ImageProcessingView_iPhone *imageProcessingView_iPhone = [[ImageProcessingView_iPhone alloc]initWithNibName:@"ImageProcessingView_iPhone" bundle:nil];
+	appDel.aEventTitle = txt_EventTitle.text;
+	if([txt_Start.text length]>0)
+		appDel.aStDate = [NSString stringWithFormat:@"Starts Date:%@",txt_Start.text];
+	else
+		appDel.aStDate = @"";
+	if([txt_End.text length]>0)
+		appDel.aEnDate = [NSString stringWithFormat:@"Ends Date:%@",txt_End.text];
+	else
+		appDel.aEnDate = @"";
+	appDel.aNotes = tv_Notes.text;
+	appDel.astreetAdress = txt_Address.text;
+	appDel.acity = txt_City.text;
+	appDel.aState = txt_State.text;
+	appDel.aZip = txt_ZipCode.text;
+	appDel.acountry = txt_Country.text;
+	appDel.aphoneNo = nil;
+   
+	imageProcessingView_iPhone.image_Card = image_Card;
+	imageProcessingView_iPhone.btnIndex = btnIndex;
+	imageProcessingView_iPhone.strFlag = strFlag;
+	
+	[self.navigationController pushViewController:imageProcessingView_iPhone animated:YES];
+	[imageProcessingView_iPhone release];
+	
+}
+
+/*
+-(IBAction)btnContinueClicked:(id)sender
+{
+	ImageProcessingView_iPhone *imageProcessingView_iPhone = [[ImageProcessingView_iPhone alloc]initWithNibName:@"ImageProcessingView_iPhone" bundle:nil];
+	imageProcessingView_iPhone.EventTitle = txt_EventTitle.text;
+	if([txt_Start.text length]>0)
+		imageProcessingView_iPhone.StDate = [NSString stringWithFormat:@"Starts Date:%@",txt_Start.text];
+	else
+		imageProcessingView_iPhone.StDate = @"";
+	if([txt_End.text length]>0)
+		imageProcessingView_iPhone.EnDate = [NSString stringWithFormat:@"Ends Date:%@",txt_End.text];
+	else
+		imageProcessingView_iPhone.EnDate = @"";
+	imageProcessingView_iPhone.Notes = tv_Notes.text;
+	imageProcessingView_iPhone.streetAdress = txt_Address.text;
+	imageProcessingView_iPhone.city = txt_City.text;
+	imageProcessingView_iPhone.State = txt_State.text;
+	imageProcessingView_iPhone.Zip = txt_ZipCode.text;
+	imageProcessingView_iPhone.country = txt_Country.text;
+	imageProcessingView_iPhone.image_Card = image_Card;
+	imageProcessingView_iPhone.btnIndex = btnIndex;
+	imageProcessingView_iPhone.strFlag = strFlag;
+	
+	[self.navigationController pushViewController:imageProcessingView_iPhone animated:YES];
+	[imageProcessingView_iPhone release];
+	
+}*/
+-(IBAction)btnbackPressed:(id)sender
+{
+	[self.navigationController popViewControllerAnimated:YES];
+}
+-(IBAction)btnNavToLib:(id)sender
+{
+	LibraryViewController *obj_LibraryViewController = [[LibraryViewController alloc]initWithNibName:@"LibraryViewController" bundle:nil];
+	obj_LibraryViewController.flagFromTemp = YES;
+	[self presentModalViewController:obj_LibraryViewController animated:YES];
+}
+
+-(void)calledendclick
+{
+	
+}
+/*
+// Override to allow orientations other than the default portrait orientation.
+- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
+    // Return YES for supported orientations.
+    return (interfaceOrientation == UIInterfaceOrientationPortrait);
+}
+*/
+#pragma mark UITextField Methods
+-(void)tv_NotesBecomeFirst
+{
+	[tv_Notes becomeFirstResponder];
+}
+- (void)textViewDidBeginEditing:(UITextView *)textView
+{
+	if([textView isEqual:tv_Notes])
+		scr_EventView.contentOffset = CGPointMake(0,300);
+	
+	
+}
+- (void)textViewDidChange:(UITextView *)textView
+{
+	lblPlaceholder.hidden = TRUE;
+	if([tv_Notes.text length] > 0 )
+	{
+		
+	}
+	else 
+	{
+		lblPlaceholder.hidden = FALSE;
+		
+		
+	}
+	
+}
+- (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text
+{
+	if([text isEqualToString:@"\n"])
+		[tv_Notes resignFirstResponder];
+	
+	return YES;
+}
+
+- (BOOL)textFieldShouldBeginEditing:(UITextField *)textField
+{
+	if([textField isEqual:txt_State]||[textField isEqual:txt_City])
+	{
+		scr_EventView.contentOffset = CGPointMake(0,150);
+	}
+	if([textField isEqual:txt_Country])
+		scr_EventView.contentOffset = CGPointMake(0,230);
+	if([textField isEqual:txt_ZipCode])
+		scr_EventView.contentOffset = CGPointMake(0,270);
+			
+	return YES;
+}
+- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string
+{
+	
+	if ([textField isEqual:txt_ZipCode]) {
+			NSCharacterSet *cs;
+			NSString *filtered;
+			cs = [[NSCharacterSet characterSetWithCharactersInString:ZIP] invertedSet];
+			filtered = [[string componentsSeparatedByCharactersInSet:cs] componentsJoinedByString:@""];
+			return [string isEqualToString:filtered];
+
+	}
+	
+	else if ([textField isEqual:txt_State]||[textField isEqual:txt_City]||[textField isEqual:txt_Country] || [textField isEqual:tv_Notes]) {
+		NSCharacterSet *cs;
+		NSString *filtered;
+		cs = [[NSCharacterSet characterSetWithCharactersInString:CHAR] invertedSet];
+		filtered = [[string componentsSeparatedByCharactersInSet:cs] componentsJoinedByString:@""];
+		return [string isEqualToString:filtered];
+	}
+	else {
+		return YES;
+	}
+	
+	
+}
+- (BOOL)textFieldShouldReturn:(UITextField *)textField
+{
+	//For Event
+	if([textField isEqual:txt_EventTitle])
+	{
+		[self btnStartDateClicked:self];
+		//	[txt_Address becomeFirstResponder];
+	}
+	if ([textField isEqual:txt_Address]) {
+		[txt_City becomeFirstResponder];
+	}
+	if ([textField isEqual:txt_City]) {
+		[txt_State becomeFirstResponder];
+	}
+	if ([textField isEqual:txt_State]) {
+		[txt_ZipCode becomeFirstResponder];
+	}
+	if ([textField isEqual:txt_ZipCode]) {
+		[txt_Country becomeFirstResponder];
+	}
+	if([textField isEqual:txt_Country])
+	{
+		[self performSelector:@selector(tv_NotesBecomeFirst) withObject:nil afterDelay:0.5];
+		//[tv_Notes becomeFirstResponder];
+		//[tv_Notes becomeFirstResponder];
+	}
+	
+	return YES;
+}
+
+-(void) completeDateselection:(NSString*) sDate:(NSString*) eDate:(NSString*) allday
+{
+	
+	
+	if ([sDate length]>0 && [eDate length]>0) {
+		
+		NSDateFormatter* df=[[[NSDateFormatter alloc]init] autorelease];
+		//if([allday isEqualToString:@"All Day"])
+		//	[df setDateFormat:@"MM/dd/yy"];	
+		txt_Start.text = sDate;
+		txt_End.text = eDate;
+		NSDateFormatter* df1=[[[NSDateFormatter alloc]init] autorelease];
+		[df1 setDateFormat:@"E MM/dd/yy h:mm aaa"];
+		NSDate *startdate = [df1 dateFromString:txt_Start.text];
+		NSDate *enddate = [df1 dateFromString:eDate];
+		if ([enddate compare:startdate] == NSOrderedAscending)
+		{
+			NSLog(@"NSOrderedAscending");
+			UIAlertView* alert = [[UIAlertView alloc]initWithTitle:@"Alert" message:@"End date should be larger than start date" delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
+			[alert show];
+			[alert release];
+			txt_End.text =@"";
+			
+		}
+		else {
+			NSLog(@"NSOrderedDescending");
+			
+			txt_End.text=eDate;
+		//	[self dismissModalViewControllerAnimated:YES];
+			[txt_Address becomeFirstResponder];
+		}
+	}
+	else {
+		if ([allday isEqualToString:@""]) {
+			if ([strFlagForTextfield isEqualToString:@"Start"]) {
+				
+				txt_Start.text = sDate;
+				[txt_EventTitle resignFirstResponder];
+				//[self dismissModalViewControllerAnimated:YES];
+				[self performSelector:@selector(btnEndDateClicked:) withObject:nil afterDelay:0.5];
+			//	[self btnEndDateClicked:self];
+			}
+			else {
+				//txt_End.text = eDate;
+				NSDateFormatter* df=[[[NSDateFormatter alloc]init] autorelease];
+				[df setDateFormat:@"E MM/dd/yy h:mmaaa"];
+				NSDate *startdate = [df dateFromString:txt_Start.text];
+				NSDate *enddate = [df dateFromString:eDate];
+				if ([enddate compare:startdate] == NSOrderedAscending)
+				{
+					NSLog(@"NSOrderedAscending");
+					UIAlertView* alert = [[UIAlertView alloc]initWithTitle:@"Alert" message:@"End date should be larger than start date" delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
+					[alert show];
+					[alert release];
+					txt_End.text =@"";
+					
+				}
+				else {
+					NSLog(@"NSOrderedDescending");
+					txt_End.text=eDate;
+						//[self dismissModalViewControllerAnimated:YES];
+					[txt_Address becomeFirstResponder];
+				}
+			}
+		}
+		else {
+				//[self dismissModalViewControllerAnimated:YES];
+			[txt_Address becomeFirstResponder];
+			NSDateFormatter* df=[[[NSDateFormatter alloc]init] autorelease];
+			//if([allday isEqualToString:@"All Day"])
+			//	[df setDateFormat:@"MM/dd/yy"];	
+			txt_Start.text = sDate;
+			txt_End.text = eDate;
+		}
+	}
+	
+}
+
+#pragma mark longPressHandler
+- (void)longPressHandler:(UILongPressGestureRecognizer *)gestureRecognizer {
+
+	if(UIGestureRecognizerStateBegan == gestureRecognizer.state) {
+		UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"" message:@"Are you sure, you want to delete QR Code?" delegate:self  cancelButtonTitle:@"Cancel" otherButtonTitles:@"Ok",nil];
+		alert.tag = 1000;
+		[alert show];
+		[alert release];
+    }
+	
+}
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
+{
+		if (buttonIndex==1) 
+		{
+				[btnQRCode setBackgroundImage:[UIImage imageNamed:@"ivBackground.png"] forState:UIControlStateNormal];
+			appDel.QRImageFromLib = nil;
+		}
+		
+	
+}
+- (void)didReceiveMemoryWarning {
+    // Releases the view if it doesn't have a superview.
+    [super didReceiveMemoryWarning];
+    
+    // Release any cached data, images, etc. that aren't in use.
+}
+
+- (void)viewDidUnload {
+    [super viewDidUnload];
+    // Release any retained subviews of the main view.
+    // e.g. self.myOutlet = nil;
+}
+
+
+- (void)dealloc {
+    [super dealloc];
+}
+
+
+@end

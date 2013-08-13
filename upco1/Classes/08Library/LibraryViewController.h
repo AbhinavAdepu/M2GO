@@ -1,0 +1,162 @@
+//
+//  LibraryViewController.h
+//  KrenMarketing
+//
+//  Created by Silvertouch on 17/11/11.
+//  Copyright 2011 SilverTouch Tech. Ltd. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import "OHAttributedLabel.h"
+#import "NSAttributedString+Attributes.h"
+#import "LibraryDetailViewController.h"
+#import <AddressBookUI/AddressBookUI.h>
+
+@interface LibraryViewController : UIViewController <UITableViewDelegate,UITableViewDataSource,UIScrollViewDelegate,UINavigationControllerDelegate,ABPeoplePickerNavigationControllerDelegate> 
+{
+    
+  
+    
+    
+	
+	IBOutlet UITableView *tblView_Lib;
+	KrenMarketingAppDelegate *appDel;
+	IBOutlet UIView *portraitView;
+	IBOutlet UIView *landscapeView;
+	 UITableView *table;
+	NSMutableArray *array_catagory;
+	IBOutlet UIView *selectedView;
+	IBOutlet UILabel *lblDescription;
+	IBOutlet UILabel *lblCategory;
+	UIImageView *TopImage;
+	UIImageView *whiteLayer;
+	UILabel *TopLabel;
+	UILabel *whitelayerlabel;
+	
+	int changeColor;
+	
+	UIImageView *qrImageview;
+	UILabel *catDes;
+	UILabel *mainDes;
+	UITextView *mainDesText;
+	UILabel *startDate;
+	UILabel *endDate;
+	UILabel *mainAddress;
+	UILabel *createdDate;
+	UILabel *lblEvent;
+	UILabel *lblstartTime;
+	UILabel *lblEndTime;
+	UILabel *lblAddress;
+	UILabel *lblURL;
+	UILabel *lblNotes;
+	UILabel *mainUrl;
+	UIImageView *landSeprate;
+	UIImageView	*portSeprate;
+	UIImageView *imgSharing;
+     UITextView *lblcalendarnote;
+	
+    
+    //--*
+    UIButton *actbutton;
+    BOOL flagcon;
+    BOOL flagphon;
+    BOOL flageven;
+    
+	UIButton *btnFB;
+	UIButton *btnTwit;
+	UIButton *btnTrash;
+	UIButton *btnEmail;
+	
+	BOOL firstTime;
+	BOOL oncePort;
+	
+	NSMutableArray *arrImg;
+	
+	int selectedRow;
+	
+	NSMutableArray *selectedindexes;
+	
+	OHAttributedLabel *lblmainDes;
+	
+	UIScrollView *scrollAll;
+	
+	UILabel *lblPhoneNo;
+	UILabel *lblPhoneNoDescription;
+	UILabel *Prefix;
+	UILabel *prefixDescription;
+	UILabel *FirstName;
+	UILabel *FirstNameDescription;
+	UILabel *LastName;
+	UILabel *LastNameDescription;
+	UILabel *MiddleName;
+	UILabel *MiddleNameDescription;
+	UILabel *Suffix;
+	UILabel *SuffixDescription;
+	UILabel *job;
+	UILabel *jobDescription;
+	UILabel *Department;
+	UILabel *DepartmentDescription;
+	UILabel *lblSubject;
+	UILabel *lblSubjectDescription;
+	UILabel *Message;
+	UILabel *MessageDescription;
+	UILabel *lblNotesDescription;
+	UIButton *btnUrl;
+	NSIndexPath *selectedindex;
+	UILabel *lblMapNotes;
+	UILabel *lblMapNotesDescription;
+	//BusinessCard
+	
+	UILabel *lblBussName;
+	UILabel *lblBussJob;
+	UILabel *lblBussEmail;
+	UILabel *lblBussPhone;
+	UILabel *lblBussAddress;
+	
+	UILabel *lblBussNameDes;
+	UILabel *lblBussJobDes;
+	UILabel *lblBussEmailDes;
+	UILabel *lblBussPhoneDes;
+	UILabel *lblBussAddressDes;
+	
+	//Invitation
+	
+	UILabel *lblInvitAddress;
+	UILabel *lblInvitAddressDes;
+	
+	//Course Info
+	
+	UILabel *lblCourseCode;
+	UILabel *lblCourseCodeDes;
+	UILabel *lblCourseProff;
+	UILabel *lblCourseProffDes;
+	UILabel *lblCourseTime;
+	UILabel *lblCourseTimeDes;
+	
+	CGFloat y_pos;
+	CGFloat pos;
+    BOOL flagicloud;
+	
+	CGFloat Event_pos;
+	int height;
+	OHAttributedLabel *txtDisplay;	
+	LibraryDetailViewController *detail_obj;
+	
+	NSMutableAttributedString *strattr;
+	IBOutlet UILabel *lblHeader_iphone;
+	
+	BOOL flagFromTemp;
+	IBOutlet UIButton *btnTemplateBack;
+
+}
+@property (nonatomic,readwrite)BOOL flagFromTemp;
+-(IBAction)buttonFacebooKClicked:(id)sender;
+-(IBAction) buttonTwitterClicked:(id)sender;
+-(IBAction)BackToTemplate;
+-(IBAction)emailbtn_click:(id)sender;
+
+- (void) didRotate:(NSNotification *)notification;
+-(void)loadTable;
+-(void)MainDescription;
+
+@end

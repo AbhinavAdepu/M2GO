@@ -1,0 +1,34 @@
+//
+//  QRGenDetailViewController.h
+//  KrenMarketing
+//
+//  Created by Jayna Gandhi on 02/03/12.
+//  Copyright 2012 __MyCompanyName__. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import "OHAttributedLabel.h"
+#import "NSAttributedString+Attributes.h"
+#import "KrenMarketingAppDelegate.h"
+
+@interface QRGenDetailViewController : UIViewController <MFMailComposeViewControllerDelegate>
+{
+	IBOutlet UILabel *lblHeader;
+	NSString *text_QR;
+	OHAttributedLabel *txtDisplay;
+	UILabel *dateLabel;
+	UILabel *TimeLabel;
+	UIImageView *imgQR;
+	UIScrollView *txtScroll;
+	
+	KrenMarketingAppDelegate *appDel;
+}
+
+-(IBAction)BackToRoot;
+-(IBAction)DeleteQRCode;
+-(IBAction)BackToHome;
+-(IBAction)btnEmailClicked;
+-(IBAction)btnTwitterClicked;
+-(IBAction)btnFacebookClicked;
+
+@end

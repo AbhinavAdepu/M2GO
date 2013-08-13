@@ -1,0 +1,33 @@
+//
+//  coverflowshow.h
+//  coverflow1
+//
+//  Created by gaurang patel on 4/7/11.
+//  Copyright 2011 silvertouch. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import "TKCoverflowView.h"
+
+
+@interface coverflowshow : UIViewController<TKCoverflowViewDelegate,TKCoverflowViewDataSource,UIScrollViewDelegate> 
+{
+	TKCoverflowView *coverflow; 
+	UIButton *infoButton;
+	NSMutableArray *covers,*coversOriginal; // album covers images
+	BOOL prflag;
+	IBOutlet UILabel *imagename;
+	CGRect frame_CoverFlow;
+	
+	IBOutlet UIButton *btnChoose;
+	int selectedImageIndex;
+	UIImage *img_ImageNameFromFlow;
+}
+@property (retain,nonatomic) TKCoverflowView *coverflow;
+@property(nonatomic,retain)UILabel *imagename;
+@property(nonatomic, retain) UIImage *img_ImageNameFromFlow;
+@property (readwrite) int selectedImageIndex;
+-(IBAction)btnChoosePressed:(id)sender;
+-(void)setFrame:(CGRect)frame;
+
+@end

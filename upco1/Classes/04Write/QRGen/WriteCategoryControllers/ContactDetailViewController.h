@@ -1,0 +1,50 @@
+//
+//  ContactDetailViewController.h
+//  KrenMarketing
+//
+//  Created by Jayna Gandhi on 05/03/12.
+//  Copyright 2012 __MyCompanyName__. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import "OtherOptionController.h"
+
+@class OtherOptionController;
+@interface ContactDetailViewController : UIViewController <UITextFieldDelegate,OtherOptionDelegate,UIScrollViewDelegate,dateSelectedDelegate>
+{
+	IBOutlet UILabel *lblHeader;
+	IBOutlet UIImageView *ImageQRCode;
+	IBOutlet UIButton *BtnEncode;
+	
+	UILabel *dateLabel;
+	UILabel *TimeLabel;
+	NSMutableAttributedString *strattr;
+	int height;
+	NSString *sampleString;
+
+	UIScrollView *scrollView;
+	NSMutableArray *arrField;
+	OtherOptionController *obj_OtherOptionController;
+	UIButton *addbtn;
+	NSMutableArray *AddButton;
+	NSMutableArray *OtherButton;
+	UITextField* activetxt;
+	UITextView* activetxtview;
+	int ctr;
+	NSMutableArray* arrLocal;
+	UIButton *btnName;
+	int prevvalue;
+	int charcount;
+	int height1;
+    BOOL flagcon;
+    BOOL flagsave;
+}
+
+-(IBAction)openPresentController;
+-(void)TimeandDate;
+-(IBAction)GenerateQrCode;
+-(IBAction)BackToRoot;
+-(void)textFieldDidChange:(id)sender;
+-(UIImage*) maskImage:(UIImage *)image withMask:(UIImage *)maskImage;
+-(void)saveQrCode:(UIImage *)image;
+@end

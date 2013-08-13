@@ -1,0 +1,2072 @@
+//
+//  KrenMarketingViewController.m
+//  KrenMarketing
+//
+//  Created by Silvertouch on 14/11/11.
+//  Copyright 2011 SilverTouch Tech. Ltd. All rights reserved.
+//
+
+#import "KrenMarketingViewController.h"
+#import "ZBarSymbol.h"
+#import "AboutViewController.h" 
+#import "DAL.h"
+#import "CategorySelectViewController.h"
+
+#define btnWidth_P 80
+#define btnHeight_P 81
+#define Gap_P 12
+#define btnWidth_L 79
+#define btnHeight_L 82 
+#define Gap_L 12
+
+@implementation KrenMarketingViewController
+
+@synthesize dateLabel,TimeLabel,imagecamera;
+
+
+
+
+// Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
+-(void)viewWillAppear:(BOOL)animated
+{
+	/*CABasicAnimation *rotateAnimation = [CABasicAnimation animationWithKeyPath:@"transform.transition.x"];
+    CGFloat startValue = 0.0;
+    CGFloat endValue = M_PI;
+    rotateAnimation.fromValue = [NSNumber numberWithDouble:startValue];
+    rotateAnimation.toValue = [NSNumber numberWithDouble:endValue];
+    rotateAnimation.duration = 1.5;
+    [self.view.layer addAnimation:rotateAnimation forKey:@"transition"];*/
+	
+}
+- (void)viewDidLoad {
+	
+   [super viewDidLoad];	
+	
+	self.view.autoresizingMask = NO;
+	
+	imageQR.hidden=YES;
+	imagebottombar.hidden=YES;
+	BtnQRcodeText.hidden=YES;
+	facebook.hidden=YES;
+	twitter.hidden=YES;
+	Mail.hidden=YES;
+	Mail.enabled = NO;
+	trash.hidden=YES;
+	dateLabel.hidden=YES;
+	TimeLabel.hidden=YES;
+	appDel = (KrenMarketingAppDelegate *)[[UIApplication sharedApplication]delegate];
+	
+	MainmenuAppear = TRUE;
+	
+	ScrlTabButtn = [[UIScrollView alloc] initWithFrame:CGRectMake(60,400,200,40)];
+	[self.view addSubview:ScrlTabButtn];
+	
+	ArrayView=[[NSMutableArray alloc]init];
+	btnScan = [[UIButton alloc] init];
+	btnQuiz = [[UIButton alloc] init];
+	btnPrevious =[[UIButton alloc] init];
+	btnTemplate =[[UIButton alloc] init];
+	btnTwitter = [[UIButton alloc] init];
+	btnWrite = [[UIButton alloc] init];
+	btnLibrary = [[UIButton alloc] init];
+	btnAbout =[[UIButton alloc] init];
+	btnDashBoard=[[UIButton alloc] init];
+	imageBtnBack=[[UIImageView alloc]init];
+	
+	viewMainMenusButns = [[UIView alloc]init];
+	
+	UILabel *lblVersion = [[UILabel alloc]initWithFrame:CGRectMake(0,0,50,20)];
+	lblVersion.text = @"";
+	lblVersion.backgroundColor = [UIColor clearColor];
+	lblVersion.textColor = [UIColor whiteColor];
+	
+	[viewMainMenusButns addSubview:imageBtnBack];
+	//[self.view bringSubviewToFront:imageBtnBack];
+	counter=0;
+	if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
+	{	
+		if(appDel.ori==UIInterfaceOrientationPortrait || appDel.ori == UIInterfaceOrientationPortraitUpsideDown)
+		{
+			viewMainMenusButns.frame=CGRectMake(-45,0, 120, 1007);
+			imageBtnBack.image=[UIImage imageNamed:@"_0014_bottombarCOLOR-copy.png"] ;
+			imageBtnBack.frame=CGRectMake(0,0, 167, 1007);
+			//Add Images
+			
+			[btnScan setImage:[UIImage imageNamed:@"Potrait__scan_Unselected.png"] forState:UIControlStateNormal];
+			// add targets and actions
+			[btnScan addTarget:self action:@selector(BtnScanClicked:) forControlEvents:UIControlEventTouchUpInside];
+			// add to a view
+			[viewMainMenusButns addSubview:btnScan];
+			
+			//Add Images
+			[btnDashBoard setImage:[UIImage imageNamed:@"Potrait_Dashboard.png"] forState:UIControlStateNormal];
+			// add targets and actions
+			[btnDashBoard addTarget:self action:@selector(BtnDashBoardClicked:) forControlEvents:UIControlEventTouchUpInside];
+			// add to a view
+			[viewMainMenusButns addSubview:btnDashBoard];
+			
+			//Add Images
+			[btnWrite setImage:[UIImage imageNamed:@"Potrait__Write-.png"] forState:UIControlStateNormal];
+			// add targets and actions
+			[btnWrite addTarget:self action:@selector(BtnWriteClicked:) forControlEvents:UIControlEventTouchUpInside];
+			// add to a view
+			[viewMainMenusButns addSubview:btnWrite];
+			
+			//Add Images
+			[btnQuiz setImage:[UIImage imageNamed:@"Portrait__Quiz.png"] forState:UIControlStateNormal];
+			// add targets and actions
+			[btnQuiz addTarget:self action:@selector(BtnquizClicked:) forControlEvents:UIControlEventTouchUpInside];
+			// add to a view
+			[viewMainMenusButns addSubview:btnQuiz];
+			
+			//Add Images
+			[btnTemplate setImage:[UIImage imageNamed:@"Portrait__Templates.png"] forState:UIControlStateNormal];
+			// add targets and actions
+			[btnTemplate addTarget:self action:@selector(BtnTemplateClicked:) forControlEvents:UIControlEventTouchUpInside];
+			// add to a view
+			[viewMainMenusButns addSubview:btnTemplate];
+			
+			//Add Images
+			[btnTwitter setImage:[UIImage imageNamed:@"Portrait_Twitter-.png"] forState:UIControlStateNormal];		
+			// add targets and actions
+			[btnTwitter addTarget:self action:@selector(BtnTwitterClicked:) forControlEvents:UIControlEventTouchUpInside];
+			// add to a view
+			[viewMainMenusButns addSubview:btnTwitter];
+			
+			//Add Images
+			[btnLibrary setImage:[UIImage imageNamed:@"Portrait__library.png"] forState:UIControlStateNormal];
+			// add targets and actions
+			[btnLibrary addTarget:self action:@selector(BtnLibraryClicked:) forControlEvents:UIControlEventTouchUpInside];
+			// add to a view
+			[viewMainMenusButns addSubview:btnLibrary];
+			
+			//Add Images
+			[btnAbout setImage:[UIImage imageNamed:@"Portrait__about.png"] forState:UIControlStateNormal];
+			// add targets and actions
+			[btnAbout addTarget:self action:@selector(BtnAboutClicked:) forControlEvents:UIControlEventTouchUpInside];
+			// add to a view
+			[viewMainMenusButns addSubview:btnAbout];		  
+			
+		}
+		else
+		{
+			viewMainMenusButns.frame=CGRectMake(-45,0, 120, 1007);
+			imageBtnBack.image=[UIImage imageNamed:@"SideBar.png"] ;
+			imageBtnBack.frame=CGRectMake(0,0, 167,789);
+			imageQR.frame=CGRectMake(100, 74, 130, 130);
+
+			//Add Images
+			[btnScan setImage:[UIImage imageNamed:@"Scan_unSelected1.png"] forState:UIControlStateNormal];
+			// add targets and actions
+			[btnScan addTarget:self action:@selector(BtnScanClicked:) forControlEvents:UIControlEventTouchUpInside];
+			// add to a view
+			[viewMainMenusButns addSubview:btnScan];
+			
+			
+			//Add Images
+			[btnDashBoard setImage:[UIImage imageNamed:@"DashBoard_unSelected1.png"] forState:UIControlStateNormal];
+			// add targets and actions
+			[btnDashBoard addTarget:self action:@selector(BtnDashBoardClicked:) forControlEvents:UIControlEventTouchUpInside];
+			// add to a view
+			[viewMainMenusButns addSubview:btnDashBoard];
+			
+			//Add Images
+			[btnWrite setImage:[UIImage imageNamed:@"Write_Unselected1.png"] forState:UIControlStateNormal];
+			// add targets and actions
+			[btnWrite addTarget:self action:@selector(BtnWriteClicked:) forControlEvents:UIControlEventTouchUpInside];
+			// add to a view
+			[viewMainMenusButns addSubview:btnWrite];
+			
+			//Add Images
+			[btnQuiz setImage:[UIImage imageNamed:@"Quiz_Unselected1.png"] forState:UIControlStateNormal];
+			// add targets and actions
+			[btnQuiz addTarget:self action:@selector(BtnquizClicked:) forControlEvents:UIControlEventTouchUpInside];
+			// add to a view
+			[viewMainMenusButns addSubview:btnQuiz];
+			
+			//Add Images
+			[btnTemplate setImage:[UIImage imageNamed:@"Templates_Unselected1.png"] forState:UIControlStateNormal];
+			// add targets and actions
+			[btnTemplate addTarget:self action:@selector(BtnTemplateClicked:) forControlEvents:UIControlEventTouchUpInside];
+			// add to a view
+			[viewMainMenusButns addSubview:btnTemplate];
+			
+			//Add Images
+			[btnTwitter setImage:[UIImage imageNamed:@"Twitter_Unselected1.png"] forState:UIControlStateNormal];		
+			// add targets and actions
+			[btnTwitter addTarget:self action:@selector(BtnTwitterClicked:) forControlEvents:UIControlEventTouchUpInside];
+			// add to a view
+			[viewMainMenusButns addSubview:btnTwitter];
+			
+			//Add Images
+			[btnLibrary setImage:[UIImage imageNamed:@"library_unselected1.png"] forState:UIControlStateNormal];
+			// add targets and actions
+			[btnLibrary addTarget:self action:@selector(BtnLibraryClicked:) forControlEvents:UIControlEventTouchUpInside];
+			// add to a view
+			[viewMainMenusButns addSubview:btnLibrary];
+			
+			//Add Images
+			[btnAbout setImage:[UIImage imageNamed:@"about_unselected1.png"] forState:UIControlStateNormal];
+			// add targets and actions
+			[btnAbout addTarget:self action:@selector(BtnAboutClicked:) forControlEvents:UIControlEventTouchUpInside];
+			// add to a view
+			[viewMainMenusButns addSubview:btnAbout];		  
+			
+			
+		}
+		
+		
+		
+		
+		//[self.view addSubview:imageBtnBack];
+		//[self.view sendSubviewToBack:imageBtnBack];
+		
+		[scanView addSubview:trash];
+		
+		viewMainMenusButns.backgroundColor = [UIColor clearColor];
+		[self.view addSubview:viewMainMenusButns];
+		//[viewMainMenusButns addSubview:lblVersion];
+		[self performSelector:@selector(addMenuwithAnimation) withObject:nil afterDelay:1.0];
+		x=0;
+		x_menuView = -50;
+		T1 = [NSTimer scheduledTimerWithTimeInterval:0.009
+										 target:self
+									   selector:@selector(addMenuwithAnimation)
+									   userInfo:nil
+										repeats:YES];
+		
+		
+		/*********View Animation***********/
+		
+		
+		/*CATransition *animation = [CATransition animation];
+		[animation setDuration:0.7];
+		[animation setType:kCATransitionPush];
+		[animation setSubtype:kCATransitionFromLeft];
+		[animation setTimingFunction:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut]];
+		
+		[[viewMainMenusButns layer] addAnimation:animation forKey:@"SwitchToView1"];*/
+		
+		
+		
+			}
+	else 
+	{
+		btnScan.frame = CGRectMake(0,5,83,78); // position in the parent view and set the size of the button
+		[btnScan setBackgroundImage:[UIImage imageNamed:@"Scan_unSelected.png"] forState:UIControlStateNormal];
+		// add targets and actions
+		[btnScan addTarget:self action:@selector(BtnScanClicked:) forControlEvents:UIControlEventTouchUpInside];
+		// add to a view
+		[ScrlTabButtn addSubview:btnScan];
+				
+		btnDashBoard.frame = CGRectMake(50,5,83,78); // position in the parent view and set the size of the button
+		[btnDashBoard setBackgroundImage:[UIImage imageNamed:@"dashBoard_unSelected.png"] forState:UIControlStateNormal];
+		// add targets and actions
+		[btnDashBoard addTarget:self action:@selector(BtnDashBoardClicked:) forControlEvents:UIControlEventTouchUpInside];
+		// add to a view
+		[ScrlTabButtn addSubview:btnDashBoard];		
+		
+		btnWrite.frame = CGRectMake(100,5,83, 78); // position in the parent view and set the size of the button
+		[btnWrite setBackgroundImage:[UIImage imageNamed:@"Write_UnSelected.png"] forState:UIControlStateNormal];
+		// add targets and actions
+		[btnWrite addTarget:self action:@selector(BtnScanClicked:) forControlEvents:UIControlEventTouchUpInside];
+		// add to a view
+		[ScrlTabButtn addSubview:btnWrite];
+		
+		btnQuiz.frame = CGRectMake(150,5,83, 78); // position in the parent view and set the size of the button
+		[btnQuiz setBackgroundImage:[UIImage imageNamed:@"Quiz_Selected.png"] forState:UIControlStateNormal];
+		// add targets and actions
+		[btnQuiz addTarget:self action:@selector(BtnquizClicked:) forControlEvents:UIControlEventTouchUpInside];
+		// add to a view
+		[ScrlTabButtn addSubview:btnQuiz];
+		
+		btnTemplate.frame = CGRectMake(200,5, 83, 78); // position in the parent view and set the size of the button
+		[btnTemplate setBackgroundImage:[UIImage imageNamed:@"Templates_Selected.png"] forState:UIControlStateNormal];		
+		// add targets and actions
+		[btnTemplate addTarget:self action:@selector(BtnTemplateClicked:) forControlEvents:UIControlEventTouchUpInside];
+		// add to a view
+		[ScrlTabButtn addSubview:btnTemplate];
+		
+		btnTwitter.frame = CGRectMake(250,5, 50, 40); // position in the parent view and set the size of the button
+		[btnTwitter setBackgroundImage:[UIImage imageNamed:@"Twitter_Selected.png"] forState:UIControlStateNormal];		
+		// add targets and actions
+		[btnTwitter addTarget:self action:@selector(BtnTwitterClicked:) forControlEvents:UIControlEventTouchUpInside];
+		// add to a view
+		[ScrlTabButtn addSubview:btnTwitter];
+		
+		btnLibrary.frame = CGRectMake(300,5, 50, 40); // position in the parent view and set the size of the button
+		//Add Images
+		[btnLibrary setBackgroundImage:[UIImage imageNamed:@"library_selected.png"] forState:UIControlStateNormal];		
+		// add targets and actions
+		[btnLibrary addTarget:self action:@selector(BtnLibraryClicked:) forControlEvents:UIControlEventTouchUpInside];
+		// add to a view
+		[ScrlTabButtn addSubview:btnLibrary];
+		
+		btnAbout.frame = CGRectMake(350,5, 50,40); // position in the parent view and set the size of the button
+		//Add Images
+		
+		[btnAbout setBackgroundImage:[UIImage imageNamed:@"about_Selected.png"] forState:UIControlStateNormal];		
+		// add targets and actions
+		[btnAbout addTarget:self action:@selector(BtnAboutClicked:) forControlEvents:UIControlEventTouchUpInside];
+		// add to a view
+		[ScrlTabButtn addSubview:btnAbout];		  
+	}
+	[ScrlTabButtn setScrollEnabled:NO];
+	ScrlTabButtn.contentSize=CGSizeMake(420,50);	
+	appDel.ForBackGroundSupport=FALSE;
+}
+#pragma mark addMenuwithAnimation
+-(void)addMenuwithAnimation
+{
+	fromAnimation = TRUE;
+	x+=1;
+	x_menuView+=1;
+	if(appDel.ori == UIInterfaceOrientationPortrait ||
+	   appDel.ori == UIInterfaceOrientationPortraitUpsideDown)
+	{
+		MainMenuView.frame = CGRectMake(x,-20,1024,768);
+		viewMainMenusButns.frame=CGRectMake(x_menuView,0, 120, 1007);
+	}
+	else 
+	{
+		MainMenuView.frame = CGRectMake(x,-20,768,1024);
+		viewMainMenusButns.frame=CGRectMake(x_menuView,0, 120, 1007);
+	}
+	if(x>=50)
+	{
+		viewMainMenusButns.frame=CGRectMake(0,0, 120, 1007);
+		[T1 invalidate];
+		T1= nil;
+		//[self.view addSubview:viewMainMenusButns];
+	}
+}
+#pragma mark URL IN BROWSER
+-(IBAction)btnScanURL:(id)sender
+{
+	
+		[[UIApplication sharedApplication] openURL:[NSURL URLWithString:LabelQRCode.text ]];
+}
+
+
+
+#pragma mark removeViews
+-(void)RemoveOlderView
+{
+	appDel.mon=FALSE;
+	appDel.tue=FALSE;
+	appDel.wed=FALSE;
+	appDel.thu=FALSE;
+	appDel.fri=FALSE;
+	appDel.sat=FALSE;
+	appDel.sun=FALSE;
+	appDel.strStartTime=@"";
+	appDel.strEndTime=@"";
+	[trash removeFromSuperview];
+	[btnScan setImage:[UIImage imageNamed:@"Scan_unSelected1.png"] forState:UIControlStateNormal];	
+	[btnDashBoard setImage:[UIImage imageNamed:@"DashBoard_unSelected1.png"] forState:UIControlStateNormal];
+	[btnWrite setImage:[UIImage imageNamed:@"Write_Unselected1.png"] forState:UIControlStateNormal];
+	[btnQuiz setImage:[UIImage imageNamed:@"Quiz_Unselected1.png"] forState:UIControlStateNormal];
+	[btnTemplate setImage:[UIImage imageNamed:@"Templates_Unselected1.png"] forState:UIControlStateNormal];
+	[btnTwitter setImage:[UIImage imageNamed:@"Twitter_Unselected1.png"] forState:UIControlStateNormal];		
+	[btnLibrary setImage:[UIImage imageNamed:@"library_unselected1.png"] forState:UIControlStateNormal];		
+	[btnAbout setImage:[UIImage imageNamed:@"about_unselected1.png"] forState:UIControlStateNormal];		
+	
+	if(scanView)
+	{
+		imageQR.hidden = TRUE;
+		imageQR.image = nil;
+		
+		appDel.img.hidden = TRUE;
+		appDel.img.image = nil;
+		dateLabel.hidden = TRUE;
+		dateLabel.text = nil;
+		TimeLabel.hidden = TRUE;
+		TimeLabel.text = nil;
+		LabelQRCode.hidden = TRUE;
+		LabelQRCode.text = nil;
+		
+		imagebottombar.hidden = YES;
+		twitter.hidden = YES;
+		facebook.hidden = YES;
+		Mail.hidden = YES;
+		Mail.enabled = NO;
+		
+		[scanView removeFromSuperview];
+	}
+	
+	if([DashBoardViewController_obj retainCount] > 0)
+	{
+		[[NSNotificationCenter defaultCenter] removeObserver:DashBoardViewController_obj name:UIApplicationDidChangeStatusBarOrientationNotification object:nil];
+		
+		[DashBoardViewController_obj.view removeFromSuperview];
+		[DashBoardViewController_obj release];
+		DashBoardViewController_obj = nil;
+	}
+	if([QuizViewController_obj retainCount] > 0)
+	{
+		[[NSNotificationCenter defaultCenter] removeObserver:QuizViewController_obj name:UIApplicationDidChangeStatusBarOrientationNotification object:nil];
+		[QuizViewController_obj.view removeFromSuperview];
+		[QuizViewController_obj release];
+		QuizViewController_obj = nil;
+	}
+	if([QRGenViewController_obj retainCount] > 0)
+	{
+		[[NSNotificationCenter defaultCenter] removeObserver:QRGenViewController_obj name:UIApplicationDidChangeStatusBarOrientationNotification object:nil];
+		[QRGenViewController_obj.view removeFromSuperview];
+		[QRGenViewController_obj release];
+        QRGenViewController_obj = nil;
+	}
+	if([LibraryViewController retainCount] > 0)
+	{
+		[[NSNotificationCenter defaultCenter] removeObserver:LibraryViewController_obj name:UIApplicationDidChangeStatusBarOrientationNotification object:nil];
+		[LibraryViewController_obj.view removeFromSuperview];
+		[LibraryViewController_obj release];
+		LibraryViewController_obj = nil;
+	}
+	if([TwitterViewController_obj retainCount] > 0)
+	{
+		[[NSNotificationCenter defaultCenter] removeObserver:TwitterViewController_obj name:UIApplicationDidChangeStatusBarOrientationNotification object:nil];
+		[TwitterViewController_obj.view removeFromSuperview];
+		[TwitterViewController_obj release];
+        TwitterViewController_obj = nil;
+	}
+	if([AboutViewController_obj retainCount] > 0)
+	{
+		[[NSNotificationCenter defaultCenter] removeObserver:AboutViewController_obj name:UIApplicationDidChangeStatusBarOrientationNotification object:nil];
+		[AboutViewController_obj.view removeFromSuperview];
+		[AboutViewController_obj release];
+		AboutViewController_obj = nil;
+	}
+	if([TemplateViewController_obj retainCount] > 0)
+	{
+		[[NSNotificationCenter defaultCenter] removeObserver:TemplateViewController_obj name:UIApplicationDidChangeStatusBarOrientationNotification object:nil];
+		[TemplateViewController_obj.view removeFromSuperview];
+		[TemplateViewController_obj release];
+		TemplateViewController_obj = nil;
+		
+	}
+	
+	
+}
+
+/*-(void)RemoveOlderView
+{
+	[trash removeFromSuperview];
+	[btnScan setImage:[UIImage imageNamed:@"Scan_unSelected.png"] forState:UIControlStateNormal];	
+	[btnDashBoard setImage:[UIImage imageNamed:@"DashBoard_unSelected.png"] forState:UIControlStateNormal];
+	[btnWrite setImage:[UIImage imageNamed:@"Write_Unselected.png"] forState:UIControlStateNormal];
+	[btnQuiz setImage:[UIImage imageNamed:@"Quiz_Unselected.png"] forState:UIControlStateNormal];
+	[btnTemplate setImage:[UIImage imageNamed:@"Templates_Unselected.png"] forState:UIControlStateNormal];
+	[btnTwitter setImage:[UIImage imageNamed:@"Twitter_Unselected.png"] forState:UIControlStateNormal];		
+	[btnLibrary setImage:[UIImage imageNamed:@"library_unselected.png"] forState:UIControlStateNormal];		
+	[btnAbout setImage:[UIImage imageNamed:@"about_unselected.png"] forState:UIControlStateNormal];		
+
+	if(scanView)
+	{
+		imageQR.hidden = TRUE;
+		imageQR.image = nil;
+		
+		appDel.img.hidden = TRUE;
+		appDel.img.image = nil;
+		dateLabel.hidden = TRUE;
+		dateLabel.text = nil;
+		TimeLabel.hidden = TRUE;
+		TimeLabel.text = nil;
+		LabelQRCode.hidden = TRUE;
+		LabelQRCode.text = nil;
+		
+		imagebottombar.hidden = YES;
+		twitter.hidden = YES;
+		facebook.hidden = YES;
+		Mail.hidden = YES;
+		Mail.enabled = NO;
+		
+		[scanView removeFromSuperview];
+	}
+	if([DashBoardViewController_obj retainCount] > 0)
+	{
+		[DashBoardViewController_obj.view removeFromSuperview];
+		[DashBoardViewController_obj release];
+		DashBoardViewController_obj = nil;
+	}
+	if([QuizViewController_obj retainCount] > 0)
+	{
+		[QuizViewController_obj.view removeFromSuperview];
+		[QuizViewController_obj release];
+		QuizViewController_obj = nil;
+	}
+	if([QRGenViewController_obj retainCount] > 0)
+	{
+		[QRGenViewController_obj.view removeFromSuperview];
+		[QRGenViewController_obj release];
+        QRGenViewController_obj = nil;
+	}
+	if([LibraryViewController retainCount] > 0)
+	{
+		[LibraryViewController_obj.view removeFromSuperview];
+		[LibraryViewController_obj release];
+		LibraryViewController_obj = nil;
+	}
+	if([TwitterViewController_obj retainCount] > 0)
+	{
+		[TwitterViewController_obj.view removeFromSuperview];
+		[TwitterViewController_obj release];
+        TwitterViewController_obj = nil;
+	}
+	if([AboutViewController_obj retainCount] > 0)
+	{
+		[AboutViewController_obj.view removeFromSuperview];
+		[AboutViewController_obj release];
+		AboutViewController_obj = nil;
+	}
+	
+}*/
+
+
+#pragma mark BtnClickEvent
+-(IBAction)BtnScanClicked:(id)sender{
+	appDel.ForBackGroundSupport=FALSE;
+	[self btnQRCodePressed:nil];
+	[self RemoveOlderView];
+	
+	LBlHeading.text = @"Scan";
+	
+	if(Photosel == TRUE)
+		lblIntroImage.hidden = YES;
+	else
+		lblIntroImage.hidden = NO;
+	flag = TRUE;
+	if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
+	{
+		if([QRScanViewController_obj retainCount] > 0)
+		{
+			
+		}
+		else {			
+			if(appDel.ori==UIInterfaceOrientationPortrait || appDel.ori == UIInterfaceOrientationPortraitUpsideDown)
+			{	
+				//Photosel=FALSE;
+				//AlbumSel=FALSE;
+				
+				[btnPhotoAlbum setImage:[UIImage imageNamed:@"UN_PhotoAlbum.png"] forState:UIControlStateNormal];
+				[btnCamera setImage:[UIImage imageNamed:@"UNSEL__Camera.png"] forState:UIControlStateNormal];
+			
+				
+				imagebottombar.image=[UIImage imageNamed:@"WriteQR-Portrait_0007_top-red-band.png"];
+				[btnScan setImage:[UIImage imageNamed:@"Scan_Selected.png"] forState:UIControlStateNormal];
+				TopRed.image=[UIImage imageNamed:@"_0009_top-red-band.png"];
+
+				//btnScan.frame = CGRectMake(18, Gap_P, btnWidth_P, btnHeight_P); // position in the parent view and set the size of the button
+				
+				scanView.frame = CGRectMake(btnWidth_P, 0, 1024-btnWidth_P-10, 1007);
+			    btnCamera.frame=CGRectMake(34,(1007)-41,327,40);
+			    btnPhotoAlbum.frame=CGRectMake(327+34, (1007)-41,327, 40);
+				TopRed.frame=CGRectMake(0,0,768,48);
+				
+				if(flag == TRUE)
+				{
+					flag = FALSE;
+					imageQR.frame=CGRectMake(100, 74, 130, 130);
+				}
+				else {
+					imageQR.frame=CGRectMake(50, 74, 130, 130);
+				}
+
+				facebook.frame=CGRectMake(190, 1024-124,80,81);
+				twitter.frame=CGRectMake(100+(90*2),1024-124, 80,81);
+				Mail.frame=CGRectMake(100+(90*3),1024-124, 80,81);
+				trash.frame=CGRectMake(100+(90*4),1024-124, 80,81);
+			
+				imagebottombar.frame=CGRectMake(0,1024-114,910, 64);
+				btnBack.frame=CGRectMake(45,7,22,27);
+				LBlHeading.frame=CGRectMake(320,4,200,30);
+				dateLabel.frame=CGRectMake(250,74,200,25);
+				TimeLabel.frame=CGRectMake(250,95,100,25);
+			}
+			
+		
+			else{
+				//Photosel=FALSE;
+				//AlbumSel=FALSE;
+				
+				imagebottombar.image=[UIImage imageNamed:@"WriteQR-Portrait_0007_top-red-band.png"];
+
+				[btnPhotoAlbum setImage:[UIImage imageNamed:@"cmr (3).png"] forState:UIControlStateNormal];
+				[btnCamera setImage:[UIImage imageNamed:@"camera_selected.png"] forState:UIControlStateNormal];
+				TopRed.image=[UIImage imageNamed:@"_0006_top-red-band910.png"];
+
+				//btnScan.frame = CGRectMake(18, Gap_L, btnWidth_L, btnHeight_L); // position in the parent view and set the size of the button
+				[btnScan setImage:[UIImage imageNamed:@"Scan_Selected.png"] forState:UIControlStateNormal];
+				btnBack.frame=CGRectMake(21,7,22,27);
+				scanView.frame = CGRectMake(114, 0, 1024-btnWidth_L-20, 1007);
+				btnCamera.frame=CGRectMake(0,768-57, 453, 37);
+				btnPhotoAlbum.frame=CGRectMake(453,768-57, 457, 37);
+				TopRed.frame=CGRectMake(0,0,1004,48);
+				imageQR.frame=CGRectMake(50, 74, 130, 130);
+				imagebottombar.frame=CGRectMake(0, 768-108,910, 64);
+				
+				facebook.frame=CGRectMake(269, 768-104, 42, 44);
+				twitter.frame=CGRectMake(269+105, 768-104, 42, 44);
+				Mail.frame=CGRectMake(269+(105*2), 768-104, 42, 44);
+				trash.frame=CGRectMake(269+(105*3), 768-104, 42, 44);
+				
+				
+				LBlHeading.frame=CGRectMake(410,2,250,30);
+				dateLabel.frame=CGRectMake(200,74,200,25);
+				TimeLabel.frame=CGRectMake(200,95,100,25);
+
+			}
+			
+			[self.view addSubview:scanView];
+			
+			
+						[self.view bringSubviewToFront:viewMainMenusButns];
+ 			
+			}				
+	   }else{         //IPHONE
+		
+	   }		
+
+}
+-(IBAction)BtnDashBoardClicked:(id)sender{
+	appDel.ForBackGroundSupport=TRUE;
+	[self btnQRCodePressed:nil];
+	[self RemoveOlderView];
+	if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
+	{
+		if([DashBoardViewController_obj retainCount] > 0)
+		{
+			
+		}
+		else {
+			DashBoardViewController_obj=[[DashBoardViewController alloc] initWithNibName:@"DashBoardViewController_ipad" bundle:nil];
+			nav_Dash = [[UINavigationController alloc]initWithRootViewController:DashBoardViewController_obj];
+			if(appDel.ori == UIInterfaceOrientationPortrait || appDel.ori == UIInterfaceOrientationPortraitUpsideDown){
+				[btnDashBoard setImage:[UIImage imageNamed:@"dashBoard_Selected1.png"] forState:UIControlStateNormal];
+				nav_Dash.view.frame = CGRectMake(btnWidth_P, 0, 768-btnWidth_P, 1024);
+			}else{
+				[btnDashBoard setImage:[UIImage imageNamed:@"dashBoard_Selected1.png"] forState:UIControlStateNormal];
+				nav_Dash.view.frame = CGRectMake(btnWidth_L+22, 0, 1024-btnWidth_L, 1007);
+			}//nav_Dash.navigationBar.tintColor = [UIColor redColor];
+			nav_Dash.navigationBarHidden = TRUE;
+			//nav_Dash.navigationController.navigationItem.title = @"DashBoard";
+			[self.view addSubview:nav_Dash.view];
+			[self.view bringSubviewToFront:viewMainMenusButns];
+			
+			//[self.view sendSubviewToBack:nav_Dash.view];
+
+		}
+		
+		
+	}else{//iphone
+			}
+	
+}
+
+-(IBAction)BtnWriteClicked:(id)sender{
+	appDel.ForBackGroundSupport=FALSE;
+	[self btnQRCodePressed:nil];
+	[self RemoveOlderView];
+	if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
+	{
+		QRGenViewController_obj=[[QRGenViewController alloc] initWithNibName:@"QRGenViewController_ipad" bundle:nil];
+		nav_Write = [[UINavigationController alloc]initWithRootViewController:QRGenViewController_obj];
+		nav_Write.navigationBar.hidden=YES;
+		if(appDel.ori == UIInterfaceOrientationPortrait || appDel.ori == UIInterfaceOrientationPortraitUpsideDown)
+		{
+			[btnWrite setImage:[UIImage imageNamed:@"Write_Selected.png"] forState:UIControlStateNormal];
+			nav_Write.view.frame = CGRectMake(btnWidth_P, 0, 768-btnWidth_P, 1024);
+			
+		}else
+		{	[btnWrite setImage:[UIImage imageNamed:@"Write_Selected.png"] forState:UIControlStateNormal];
+			nav_Write.view.frame = CGRectMake(btnWidth_L+22, 0, 1024-btnWidth_L, 1007);
+		}
+		
+		[self.view addSubview:nav_Write.view];
+		[self.view bringSubviewToFront:viewMainMenusButns];
+		
+	}else{    //IPHONE
+	}
+	
+	
+}
+//Developer : Deval Chauhan
+//Date : 03/12/2011
+//Change for : Template module implementation.
+//Status : Changes start
+//To Revert : Remove Line between starting and ending comment	
+-(IBAction)BtnTemplateClicked:(id)sender{
+	appDel.ForBackGroundSupport=FALSE;
+	[self btnQRCodePressed:nil];
+	[self RemoveOlderView];
+	
+	if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
+	{	
+		TemplateViewController_obj=[[TemplateViewController alloc] initWithNibName:@"TemplateViewController_ipad" bundle:nil];
+		nav_Template = [[UINavigationController alloc]initWithRootViewController:TemplateViewController_obj];
+		if(appDel.ori == UIInterfaceOrientationPortrait || appDel.ori == UIInterfaceOrientationPortraitUpsideDown)
+		{	[btnTemplate setImage:[UIImage imageNamed:@"Templates_Selected1.png"] forState:UIControlStateNormal];
+			nav_Template.view.frame = CGRectMake(btnWidth_P, 0, 768-btnWidth_P, 1024);
+		}else
+		{	[btnTemplate setImage:[UIImage imageNamed:@"Templates_Selected1.png"] forState:UIControlStateNormal];
+			nav_Template.view.frame = CGRectMake(btnWidth_L+22, 0, 1024-btnWidth_L, 1007);
+		}
+		nav_Template.navigationBarHidden = TRUE;
+		[self.view addSubview:nav_Template.view];		
+		[self.view bringSubviewToFront:viewMainMenusButns];
+		
+	}else{ //iphone
+	}
+}
+//Developer : Deval Chauhan
+//Date : 03/12/2011
+//Change for : Template module implementation.
+//Status : Changes end
+-(IBAction)BtnTwitterClicked:(id)sender{
+	appDel.ForBackGroundSupport=FALSE;
+	[self btnQRCodePressed:nil];
+	[self RemoveOlderView];
+	if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
+	{	
+		TwitterViewController_obj=[[TwitterViewController alloc] initWithNibName:@"TwitterViewController_ipad" bundle:nil];
+		nav_Twitter = [[UINavigationController alloc]initWithRootViewController:TwitterViewController_obj];
+		if(appDel.ori == UIInterfaceOrientationPortrait || appDel.ori == UIInterfaceOrientationPortraitUpsideDown)
+		{	[btnTwitter setImage:[UIImage imageNamed:@"Twitter_Selected.png"] forState:UIControlStateNormal];
+			nav_Twitter.view.frame = CGRectMake(btnWidth_P, 0, 768-btnWidth_P, 1024);
+		}else
+		{	[btnTwitter setImage:[UIImage imageNamed:@"Twitter_Selected.png"] forState:UIControlStateNormal];
+
+			nav_Twitter.view.frame = CGRectMake(btnWidth_L+22, 0, 1024-btnWidth_L, 1007);
+		}
+		
+	/*	nav_Twitter.navigationBarHidden = TRUE;
+		[self.view addSubview:nav_Twitter.view];
+		[self.view sendSubviewToBack:nav_Twitter.view];
+		*/
+		nav_Twitter.navigationBarHidden = TRUE;
+		[self.view addSubview:nav_Twitter.view];		
+		[self.view bringSubviewToFront:viewMainMenusButns];		
+
+	}else{    //IPHONE
+	}
+	
+	
+	
+}
+-(IBAction)BtnLibraryClicked:(id)sender{
+	appDel.ForBackGroundSupport=FALSE;
+	[self btnQRCodePressed:nil];
+	[self RemoveOlderView];
+	
+	NSString *strQuery = @"SELECT *FROM library";
+	appDel.array_catagory = [DAL ExecuteArraySet:strQuery];
+	/*
+	if([appDel.array_catagory count] == 0)
+	{
+		UIAlertView* alert = [[UIAlertView alloc]initWithTitle:@"Alert" message:@"Please select the QRCode you want to share" delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
+		[alert show];
+		[alert release];
+	}
+	else 
+	{
+	 */
+	
+	if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
+	{
+			LibraryViewController_obj=[[LibraryViewController alloc] initWithNibName:@"LibraryViewController_ipad" bundle:nil];
+			nav_Lib = [[UINavigationController alloc]initWithRootViewController:LibraryViewController_obj];
+			if(appDel.ori == UIInterfaceOrientationPortrait || appDel.ori == UIInterfaceOrientationPortraitUpsideDown)
+			{	[btnLibrary setImage:[UIImage imageNamed:@"library_selected1.png"] forState:UIControlStateNormal];
+				
+				nav_Lib.view.frame = CGRectMake(btnWidth_P, 0, 768-btnWidth_P, 1024);
+			}else
+			{	[btnLibrary setImage:[UIImage imageNamed:@"library_selected1.png"] forState:UIControlStateNormal];
+				
+				
+				nav_Lib.view.frame = CGRectMake(btnWidth_L+22, 0, 1024-btnWidth_L, 1007);
+			}//nav_Dash.navigationBar.tintColor = [UIColor redColor];
+			nav_Lib.navigationBarHidden = TRUE;
+			//nav_Dash.navigationController.navigationItem.title = @"DashBoard";
+
+			[self.view addSubview:nav_Lib.view];		
+			[self.view bringSubviewToFront:viewMainMenusButns];
+			
+		}
+		
+	
+		
+}
+-(IBAction)BtnAboutClicked:(id)sender{
+	appDel.ForBackGroundSupport=FALSE;
+	[self btnQRCodePressed:nil];
+		[self RemoveOlderView];
+
+	if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
+	{	
+		AboutViewController_obj=[[AboutViewController alloc] initWithNibName:@"AboutViewController_ipad" bundle:nil];
+		nav_About = [[UINavigationController alloc]initWithRootViewController:AboutViewController_obj];
+		if(appDel.ori == UIInterfaceOrientationPortrait || appDel.ori == UIInterfaceOrientationPortraitUpsideDown)
+		{	[btnAbout setImage:[UIImage imageNamed:@"about_selected.png"] forState:UIControlStateNormal];
+			nav_About.view.frame = CGRectMake(btnWidth_P, 0, 768-btnWidth_P, 1024);
+		}else
+		{	[btnAbout setImage:[UIImage imageNamed:@"about_selected.png"] forState:UIControlStateNormal];
+			nav_About.view.frame = CGRectMake(btnWidth_L+22, 0, 1024-btnWidth_L, 1007);
+
+		}
+		nav_About.navigationBarHidden = TRUE;
+		[self.view addSubview:nav_About.view];		
+		[self.view bringSubviewToFront:viewMainMenusButns];
+
+		
+	}else{ //iphone
+	}
+	
+}
+-(IBAction)BtnquizClicked:(id)sender{
+	appDel.ForBackGroundSupport=FALSE;
+	[self btnQRCodePressed:nil];
+	[self RemoveOlderView];
+
+	if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
+	{
+		QuizViewController_obj=[[QuizViewController alloc] initWithNibName:@"QuizViewController_ipad" bundle:nil];
+		nav_Quiz = [[UINavigationController alloc]initWithRootViewController:QuizViewController_obj];
+		if(appDel.ori == UIInterfaceOrientationPortrait || appDel.ori == UIInterfaceOrientationPortraitUpsideDown)
+		{[btnQuiz setImage:[UIImage imageNamed:@"Quiz_Selected.png"] forState:UIControlStateNormal];
+			nav_Quiz.view.frame = CGRectMake(btnWidth_P, 0, 768-btnWidth_P, 1024);
+		}else{
+			[btnQuiz setImage:[UIImage imageNamed:@"Quiz_Selected.png"] forState:UIControlStateNormal];
+			nav_Quiz.view.frame = CGRectMake(btnWidth_L+22, 0, 1024-btnWidth_L, 1007);
+		}
+		nav_Quiz.navigationBarHidden = TRUE;
+		[self.view addSubview:nav_Quiz.view];		
+		[self.view bringSubviewToFront:viewMainMenusButns];
+
+	}else{
+	}	
+}
+
+-(IBAction)btnQRCodePressed:(id)sender
+{
+	MainmenuAppear = FALSE;
+	[MainMenuView removeFromSuperview];
+	//[self BtnScanClicked:nil];
+}
+/*-(void)selectcategory:(UIImage *)img
+{
+	//CategorySelectViewController  *cat= [[CategorySelectViewController alloc] initWithNibName:@"CategorySelectViewController" bundle:nil];	
+	//	
+	//	[self presentModalViewController:cat animated:TRUE];
+	
+	
+	
+	CategorySelectViewController *dwBookView = [[CategorySelectViewController alloc]initWithNibName:@"CategorySelectViewController" bundle:nil];
+	dwBookView.img = img;
+    dwBookView.modalPresentationStyle=UIModalPresentationFormSheet;
+    [self presentModalViewController:dwBookView animated:NO];
+    dwBookView.view.superview.autoresizingMask = 
+    UIViewAutoresizingFlexibleTopMargin | 
+    UIViewAutoresizingFlexibleBottomMargin;    
+    dwBookView.view.superview.frame = CGRectMake(
+                                                 dwBookView.view.superview.frame.origin.x,
+                                                 dwBookView.view.superview.frame.origin.y,
+                                                 300.0f,
+                                                 300.0f
+                                                 );
+    //dwBookView.view.superview.center = self.view.center;
+    
+	dwBookView.view.superview.center = CGPointMake(440, 500);
+	
+    //	[self presentModalViewController:dwBookView animated:YES];
+    //[self presentModalViewController:nav animated:YES];
+    [dwBookView release];
+	
+	
+}*/
+
+-(void)selectcategory:(UIImage *)img
+{
+	
+	CategorySelectViewController *dwBookView = [[CategorySelectViewController alloc]initWithNibName:@"CategorySelectViewController" bundle:nil];
+	 dwBookView.img = img;
+	 dwBookView.modalPresentationStyle=UIModalPresentationFormSheet;
+	 [self presentModalViewController:dwBookView animated:NO];
+	 dwBookView.view.superview.autoresizingMask = 
+	 UIViewAutoresizingFlexibleTopMargin | 
+	 UIViewAutoresizingFlexibleBottomMargin;    
+	 dwBookView.view.superview.frame = CGRectMake(
+	 dwBookView.view.superview.frame.origin.x,
+	 dwBookView.view.superview.frame.origin.y,
+	 00.0f,
+	 00.0f
+	 );
+	 dwBookView.view.superview.center = CGPointMake(440, 500);
+	 [dwBookView release];
+	
+	/*glbImage = img;
+	
+	UIAlertView *alert = [[UIAlertView alloc]initWithTitle:@"Save QR Code to Library"
+												   message:@"Do you want to save this QR Code to the Library?" 
+												  delegate:self 
+										 cancelButtonTitle:@"Save"
+										 otherButtonTitles:@"Don't Save",nil];
+	
+	[alert show];
+	[alert release];*/
+	
+}
+
+
+
+#pragma mark Save n delete QRCode
+-(IBAction)Trash_click:(id)sender
+{
+	//[scanView removeFromSuperview];
+	LBlHeading.text = @"Scan";
+	//NSString *sql = [NSString stringWithFormat:@"select *from library"];
+//	NSMutableArray *array=[DAL ExecuteArraySet:sql];
+//
+//	
+//	NSString  *sql1 =[NSString stringWithFormat:@"delete from library where Image = '%@' ",[NSString stringWithFormat:@"qr%d.png",[array count]]];
+//	[DAL ExecuteArraySet:sql1];
+//	
+//	NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+//	NSString *documentsDirectory = [paths objectAtIndex:0];
+//	NSString * pdfname = [documentsDirectory stringByAppendingPathComponent:[NSString stringWithFormat:@"qr%d.png",[array count]]];	
+//	[[NSFileManager defaultManager] removeItemAtPath:pdfname error:nil];
+//
+	
+	NSString *sql = [NSString stringWithFormat:@"select Image from library where Image =(SELECT MAX(Image) from library)"];
+	NSMutableArray *array=[DAL ExecuteArraySet:sql];
+	
+	NSString  *sql1 =[NSString stringWithFormat:@"delete from library where Image = '%@' ",[NSString stringWithFormat:@"%@",[[array objectAtIndex:0] valueForKey:@"Image"]]];
+	
+	[DAL ExecuteArraySet:sql1];
+	
+	NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+	NSString *documentsDirectory = [paths objectAtIndex:0];
+	NSString * pdfname = [documentsDirectory stringByAppendingPathComponent:[NSString stringWithFormat:@"%@",[[array objectAtIndex:0] valueForKey:@"Image"]]];	
+	[[NSFileManager defaultManager] removeItemAtPath:pdfname error:nil];
+	
+	
+	imageQR.hidden = TRUE;
+	imageQR.image = nil;
+	
+	appDel.img.hidden = TRUE;
+	appDel.img.image = nil;
+	dateLabel.hidden = TRUE;
+	dateLabel.text = nil;
+	TimeLabel.hidden = TRUE;
+	TimeLabel.text = nil;
+	LabelQRCode.hidden = TRUE;
+	LabelQRCode.text = nil;
+	
+	imagebottombar.hidden = YES;
+	twitter.hidden = YES;
+	facebook.hidden = YES;
+	Mail.hidden = YES;
+	Mail.enabled = NO;
+	[trash removeFromSuperview];
+	
+}
+
+
+-(void)saveQrCode:(UIImage *)img
+{
+	
+	
+	appDel = (KrenMarketingAppDelegate *)[[UIApplication sharedApplication]delegate];
+
+	//NSString *sql = [NSString stringWithFormat:@"select *from library"];
+//	NSMutableArray *array=[DAL ExecuteArraySet:sql];
+	
+	UIImage *newImage;
+	
+	NSDateFormatter* dateFormatter = [[NSDateFormatter alloc] init];
+	[dateFormatter setDateFormat:@"MM-dd-yyyy-HH-mm-ss"];
+	NSString * date = [dateFormatter stringFromDate:[NSDate date]];
+	
+	if(appDel.img.image)
+		newImage = appDel.img.image;
+	else
+		newImage = GImage;
+		
+	newImage = img;
+
+	
+	NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+	NSString *documentsDirectory = [paths objectAtIndex:0];
+	NSString* path = [documentsDirectory stringByAppendingPathComponent: 
+						 [NSString stringWithFormat:@"qr%@.png",date]];
+	NSData* data = UIImagePNGRepresentation(newImage);
+	[data writeToFile:path atomically:YES];
+	
+	//NSString  *sql =[NSString stringWithFormat:@"Insert into library(CreatedDate, Image, Category,Description,starting_Date,Ending_Date,Address,Links,Email,Locations) Values('%@', '%@', '%@', '%@', '%@','%@','%@','%@','%@','%@')",appDel.QRScanDate,strImage,@"QRText",appDel.QRScanText,@"No Data",@"No Data",@"No Data",@"No Data",@"No Data",@"No Data"];
+	//NSString  *sql2 =[NSString stringWithFormat:@"Insert into library(CreatedDate, Image, Category,Description,starting_Date,Ending_Date,Address,Links,Email,Locations) Values('%@', '%@', '%@', '%@', '%@','%@','%@','%@','%@','%@')",@"september",strImage,@"QRText",@"No Data",@"No Data",@"No Data",@"No Data",@"No Data",@"No Data",@"No Data"];
+	
+	//NSString *sql = [NSString stringWithFormat:@"Insert into library(Image,CreatedDate,Category,Description,starting_Date,Ending_Date,Address,Links,Email,Locations) Values('%@','%@','%@','%@','%@','%@','%@','%@','%@','%@')",@"september",@"1.png",@"QRText",@"Nothing",@"Nothing",@"Nothing",@"Nothing",@"Nothing",@"Nothing",@"Nothing"];
+	
+	//[WebPubDB insert_library_CreatedDate:@"september" Image:@"1.png" Category:@"Event" Description:@"Amrit" starting_Date:@"oct" Ending_Date:@"Nov" Address:@"Ahmedabad" Links:@"google" Email:@"google" Locations:@"Vadodara"];
+	
+	
+	
+	if([appDel.catString isEqualToString:@"Event"])
+		appDel.catString = @"Event";
+	if([appDel.catString isEqualToString:@"Map Location"])
+		appDel.catString = @"Map Location ";
+	if([appDel.catString isEqualToString:@"Phone"])
+		appDel.catString = @"Phone";
+	if([appDel.catString isEqualToString:@"SMS"])
+		appDel.catString = @"SMS";
+	if([appDel.catString isEqualToString:@"Contact"])
+		appDel.catString = @"Contact";
+	if([appDel.catString isEqualToString:@"Text"])
+		appDel.catString = @"Text";
+	if([appDel.catString isEqualToString:@"Email"])
+		appDel.catString = @"Email";
+	
+	[DAL insert_library_CreatedDate:appDel.QRScanDate Image:[NSString stringWithFormat:@"qr%@.png",date]  Category:appDel.catString Description:appDel.QRScanText starting_Date:@"" Ending_Date:@"" Address:@"" Links:@"" Email:@"" Locations:@"" Message:@"" Department:@"" Job:@"" Suffix:@"" MiddleName:@"" LastName:@"" FirstName:@"" Prefix:@"" PhoneNo:@"" Subject:@"" Notes:@""];
+	
+	//[DAL insert_library_CreatedDate:appDel.QRScanDate Image: [NSString stringWithFormat:@"qr%d.png",[array count]+1] Category:@"QREvents" Description:appDel.QRScanText starting_Date:@"NODATA" Ending_Date:@"NODATA" Address:@"NODATA" Links:@"NODATA" Email:@"NODATA" Locations:@"NODATA"];
+	
+	
+	//NSString *sql = [NSString stringWithFormat:@"select *from library"];
+	//NSMutableArray *array1=[DAL ExecuteArraySet:sql];
+}
+
+
+#pragma mark TIME & DATE
+-(void)TimeandDate{
+	//Date
+	NSDate* date = [NSDate date];
+	NSDateFormatter *Date1=[[[NSDateFormatter alloc] init] autorelease];
+//	[Date1 setDateFormat:@"yyyyMMdd"];
+//	[Date1 setDateFormat:@"MMM dd, yyyy"];
+
+	[Date1 setDateFormat:@"E MM/dd/yy"];
+	
+	
+	NSString *Date12=[Date1 stringFromDate:date];	
+	NSLog(@"Date: %@", Date12);
+	//Time
+	NSDateFormatter *Time1=[[[NSDateFormatter alloc] init] autorelease];
+	//[Time1 setDateFormat:@"yyyyMMdd"];
+	//[Time1 setDateFormat:@"HH:MM aaa"];
+	[Time1 setDateFormat:@"h:MM aa"];
+	NSString *Time12=[Time1 stringFromDate:date];
+	//Time12 = [Time12 stringByReplacingOccurrencesOfString:@"PM" withString:@"P.M."];
+	//Time12 = [Time12 stringByReplacingOccurrencesOfString:@"AM" withString:@"A.M."];
+	
+	
+		NSLog(@"Date: %@",Time12);
+	
+	
+	Date12 = [NSString stringWithFormat:@"Scanned on %@",Date12];
+	//Date12 = @"Scanned on %@",Date12];
+	//Time12 = [Time12 stringByAppendingFormat:@"%@ P.M.",Time12];
+	
+	[dateLabel setText:Date12];
+	[TimeLabel setText:Time12];
+	/*	
+NSDate* date = [NSDate date];
+
+//Create the dateformatter object
+
+NSDateFormatter* formatter = [[[NSDateFormatter alloc] init] autorelease];
+
+//Set the required date format
+
+[formatter setDateFormat:@"yyyy-MM-dd HH:MM:SS"];
+
+//Get the string date
+
+NSString* str = [formatter stringFromDate:date];
+
+//Display on the console
+
+NSLog(@"%@",str);
+
+//Set in the lable
+*/
+//[dateLabel setText:str];
+
+}
+#pragma mark orientation
+- (void) willRotateToInterfaceOrientation: (UIInterfaceOrientation) orient
+                                 duration: (NSTimeInterval) duration
+{
+    // compensate for view rotation so camera preview is not rotated
+    [readerView willRotateToInterfaceOrientation: orient
+                                        duration: duration];
+}
+// Override to allow orientations other than the default portrait orientation.
+- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
+    // Return YES for supported orientations
+    //return (interfaceOrientation == UIInterfaceOrientationPortrait);
+ 	//jayna
+	appDel.ori = interfaceOrientation;
+	//AlbumSel = FALSE;
+	[popReader dismissPopoverAnimated:NO];	
+	
+
+
+	if(interfaceOrientation == UIInterfaceOrientationPortrait ||
+	   interfaceOrientation == UIInterfaceOrientationPortraitUpsideDown)
+	{
+		[MainMenuView removeFromSuperview];
+		if(MainmenuAppear == TRUE)
+		{
+			
+			//MainMenuView.frame = CGRectMake(0,0,768,1024);
+			if(fromAnimation==TRUE)
+				MainMenuView.frame = CGRectMake(50,-20,768,1024);
+			else
+				MainMenuView.frame = CGRectMake(0,-20,768,1024);
+			mainImageView.image = [UIImage imageNamed:@"Default.png"];
+			mainImageView.frame = CGRectMake(0,0,768,1024);
+			[self.view addSubview:MainMenuView];
+			[self.view sendSubviewToBack:MainMenuView];			
+			//[self btnQRCodePressed:nil];
+		}
+		
+		//153,358,427,205
+		lblIntroText.frame=CGRectMake(80,275,550,205);
+		lblIntroImage.frame=CGRectMake(45,420,624,68);
+
+		//lblIntroText.frame=CGRectMake(109,275,500,96);
+
+		btnBack.frame=CGRectMake(45,7,22,27);
+		imageBtnBack.image=[UIImage imageNamed:@"_0014_bottombarCOLOR-copy.png"] ;
+		imagebottombar.image=[UIImage imageNamed:@"WriteQR-Portrait_0007_top-red-band.png"];
+		TopRed.image= [UIImage imageNamed:@"_0009_top-red-band.png"];
+		
+		if (Photosel==TRUE) {
+			[btnPhotoAlbum setImage:[UIImage imageNamed:@"UN_PhotoAlbum.png"] forState:UIControlStateNormal];
+			[btnCamera setImage:[UIImage imageNamed:@"SEL_Camera.png"] forState:UIControlStateNormal];
+			
+		}else if (AlbumSel==TRUE) {
+			[btnPhotoAlbum setImage:[UIImage imageNamed:@"SEL_PHOTOAlbum.png"] forState:UIControlStateNormal];
+			[btnCamera setImage:[UIImage imageNamed:@"UNSEL__Camera.png"] forState:UIControlStateNormal];
+			
+		}else{
+			[btnPhotoAlbum setImage:[UIImage imageNamed:@"UN_PhotoAlbum.png"] forState:UIControlStateNormal];
+			[btnCamera setImage:[UIImage imageNamed:@"UNSEL__Camera.png"] forState:UIControlStateNormal];
+			
+		}
+		
+		
+		imageQR.frame=CGRectMake(100, 74, 130, 130);
+		LBlHeading.frame=CGRectMake(320,4,200,30);
+		
+		/*******/
+		if([LabelQRCode.text length] > 0)
+		{
+			LabelQRCode.frame=CGRectMake(90, 214,580,60);
+			
+			CGSize maximumLabelSize = CGSizeMake(580,9999);
+			
+			//CGSize expectedLabelSize = [LabelQRCode.text sizeWithFont:LabelQRCode.font constrainedToSize:maximumLabelSize lineBreakMode:LabelQRCode.lineBreakMode];
+			CGSize expectedLabelSize = [LabelQRCode.text sizeWithFont:LabelQRCode.font constrainedToSize:maximumLabelSize];
+			
+			CGRect newFrame = LabelQRCode.frame;
+			
+			if(expectedLabelSize.height > 700)
+				newFrame.size.height = 700;
+			else if(expectedLabelSize.height <= 30)
+				newFrame.size.height = 32;
+			else
+				newFrame.size.height = expectedLabelSize.height+10;
+			
+			LabelQRCode.frame = newFrame;
+		}
+		
+		/*********/
+		
+		BtnQRcodeText.frame=CGRectMake(120, 214,300,60);
+		//[BtnQRcodeText setTitle:@"Jayna" forState:UIControlStateNormal];
+		BtnQRcodeText.backgroundColor = [UIColor clearColor];
+		BtnQRcodeText.contentEdgeInsets = UIEdgeInsetsMake(0,-300,0,0);
+		
+		dateLabel.frame=CGRectMake(250,74,200,25);
+		TimeLabel.frame=CGRectMake(250,95,100,25);		
+		
+		imageBtnBack.frame=CGRectMake(0,0,167, 1007);
+		scanView.frame = CGRectMake(btnWidth_P, 0, 1024-btnWidth_P-10, 1007);
+		nav_Dash.view.frame = CGRectMake(btnWidth_P, 0, 945, 1024);
+		nav_Quiz.view.frame = CGRectMake(btnWidth_P, 0,  945, 1024);
+		nav_Lib.view.frame = CGRectMake(btnWidth_P, 0,  945, 1024);
+		nav_About.view.frame = CGRectMake(btnWidth_P, 0,  945, 1024);
+		nav_Write.view.frame = CGRectMake(btnWidth_P, 0, 945, 1024);
+		nav_Twitter.view.frame=CGRectMake(btnWidth_P, 0,  945, 1024);
+		nav_Template.view.frame = CGRectMake(btnWidth_P, 0,  945, 1024);
+	
+		// Frame for Button in QRSCan
+		btnCamera.frame=CGRectMake(34,(1007)-41,327,40);
+		btnPhotoAlbum.frame=CGRectMake(327+34, (1007)-41,327, 40);
+
+		TopRed.frame=CGRectMake(0,0,768,48);
+		
+		imagebottombar.frame=CGRectMake(0,1024-109,910, 64);
+
+			
+		facebook.frame=CGRectMake(190, 1024-124,80,81);
+		twitter.frame=CGRectMake(100+(90*2),1024-124, 80,81);
+		Mail.frame=CGRectMake(100+(90*3),1024-124, 80,81);
+		trash.frame=CGRectMake(100+(90*4),1024-124, 80,81);
+		
+		NSLog(@"frame==%f =%f",nav_QR.view.frame.size.width,nav_QR.view.frame.size.height);
+	//	int y = Gap_P;
+		btnScan.frame = CGRectMake(18, 12,81, btnHeight_P); // position in the parent view and set the size of the button
+		
+		//y += btnHeight_P+Gap_P;
+		btnDashBoard.frame = CGRectMake(18, 135, btnWidth_P, btnHeight_P); // position in the parent view and set the size of the button
+		
+		//y += btnHeight_P+Gap_P;
+		btnWrite.frame = CGRectMake(18, 268, btnWidth_P, btnHeight_P); // position in the parent view and set the size of the button
+		
+		//y += btnHeight_P+Gap_P;
+		btnQuiz.frame = CGRectMake(18, 398, btnWidth_P, btnHeight_P); // position in the parent view and set the size of the button
+		
+		//y += btnHeight_P+Gap_P;
+		btnTemplate.frame = CGRectMake(18,525, btnWidth_P, btnHeight_P); // position in the parent view and set the size of the button
+		
+		//y += btnHeight_P+Gap_P;
+		btnTwitter.frame = CGRectMake(18,657, btnWidth_P, btnHeight_P); // position in the parent view and set the size of the button
+		
+		//y += btnHeight_P+Gap_P;
+		btnLibrary.frame = CGRectMake(18,788, btnWidth_P, btnHeight_P); // position in the parent view and set the size of the button
+		
+		//y += btnHeight_P+Gap_P;
+		btnAbout.frame = CGRectMake(18,913, btnWidth_P, btnHeight_P); // position in the parent view and set the size of the button
+			
+		///readerView.camera
+		return YES;
+	}
+	else if(interfaceOrientation == UIInterfaceOrientationLandscapeLeft || interfaceOrientation== UIInterfaceOrientationLandscapeRight)
+	{ 
+		
+		
+		if(appDel.fromTwitter == FALSE)
+		{
+			imagebottombar.image=[UIImage imageNamed:@"WriteQR-Portrait_0007_top-red-band.png"];
+			[MainMenuView removeFromSuperview];
+			if(MainmenuAppear == TRUE)
+			{
+				//MainMenuView.frame = CGRectMake(0,0,768,1024);
+				if(fromAnimation==TRUE)
+					MainMenuView.frame = CGRectMake(50,-20,1024,768);
+				else
+					MainMenuView.frame = CGRectMake(0,-20,1024,768);
+				mainImageView.image = [UIImage imageNamed:@"Default-Landscape.png"];
+				mainImageView.frame = CGRectMake(0,0,1024,768);
+				[self.view addSubview:MainMenuView];
+				[self.view sendSubviewToBack:MainMenuView];
+				//[self btnQRCodePressed:nil];
+			}
+			
+			if (Photosel==TRUE) {
+				[btnPhotoAlbum setImage:[UIImage imageNamed:@"cmr (3).png"] forState:UIControlStateNormal];
+				[btnCamera setImage:[UIImage imageNamed:@"cmr (1).png"] forState:UIControlStateNormal];
+				
+			}else if (AlbumSel==TRUE) {
+				[btnPhotoAlbum setImage:[UIImage imageNamed:@"cmr (2).png"] forState:UIControlStateNormal];
+				[btnCamera setImage:[UIImage imageNamed:@"camera_selected.png"] forState:UIControlStateNormal];		
+				
+			}else{
+				[btnPhotoAlbum setImage:[UIImage imageNamed:@"cmr (3).png"] forState:UIControlStateNormal];
+				[btnCamera setImage:[UIImage imageNamed:@"camera_selected.png"] forState:UIControlStateNormal];
+				
+			}
+		}
+			lblIntroText.frame=CGRectMake(190,200,540,96);
+			lblIntroImage.frame=CGRectMake(140,320,624,68);
+			TopRed.image=[UIImage imageNamed:@"_0006_top-red-band910.png"];
+			
+			btnBack.frame=CGRectMake(21,7,22,27);
+			imageBtnBack.image=[UIImage imageNamed:@"SideBar.png"] ;
+			imageBtnBack.frame=CGRectMake(0,0, 167,789);
+			scanView.frame = CGRectMake(114, 0, 1024-btnWidth_L-20, 1007);
+			
+			//nav_Dash.view.frame = CGRectMake(btnWidth_L+22, 0, 1024-btnWidth_L-20, 1007);
+			nav_Dash.view.frame = CGRectMake(btnWidth_L+22, 0, 1024-btnWidth_L, 1007);
+		
+			nav_Quiz.view.frame = CGRectMake(btnWidth_L+22, 0, 1024-btnWidth_L-20, 1007);
+			nav_About.view.frame =CGRectMake(btnWidth_L+22, 0, 1024-btnWidth_L-20, 1007);
+			
+			//nav_Write.view.frame =CGRectMake(btnWidth_L+22, 0, 1024-btnWidth_L-20, 1007);
+			nav_Write.view.frame = CGRectMake(btnWidth_L+22, 0, 1024-btnWidth_L, 1007);
+			
+			nav_Twitter.view.frame = CGRectMake(btnWidth_L+22, 0, 1024-btnWidth_L, 1007);
+			//
+			nav_Twitter.view.frame = CGRectMake(btnWidth_L+22, 0, 1024-btnWidth_L, 1007);
+			
+			nav_Lib.view.frame = CGRectMake(btnWidth_L+22, 0, 1024-btnWidth_L, 1007);
+			//nav_Lib.view.frame = CGRectMake(btnWidth_L+22, 0, 1024-btnWidth_L-20, 1007);	
+			
+			nav_Template.view.frame = CGRectMake(btnWidth_L+22, 0, 1024-btnWidth_L, 1007);
+			//nav_Template.view.frame =CGRectMake(btnWidth_L+22, 0, 1024-btnWidth_L-20, 1007);
+			
+			imageQR.frame=CGRectMake(40, 74, 130, 130);
+			LBlHeading.frame=CGRectMake(430,2,250,30);
+			dateLabel.frame=CGRectMake(200,74,200,25);
+			TimeLabel.frame=CGRectMake(200,95,100,25);
+			
+			// Frame for Button in QRSCan
+			//LabelQRCode.frame=CGRectMake(60, 214,600,60);
+			
+			/*******/
+			if([LabelQRCode.text length] > 0)
+			{
+				LabelQRCode.frame=CGRectMake(30, 214,870,60);
+				
+				CGSize maximumLabelSize = CGSizeMake(870,9999);
+				
+				//CGSize expectedLabelSize = [LabelQRCode.text sizeWithFont:LabelQRCode.font constrainedToSize:maximumLabelSize lineBreakMode:LabelQRCode.lineBreakMode];
+				CGSize expectedLabelSize = [LabelQRCode.text sizeWithFont:LabelQRCode.font constrainedToSize:maximumLabelSize];
+				
+				CGRect newFrame = LabelQRCode.frame;
+				if(expectedLabelSize.height > 430)
+					newFrame.size.height = 430;
+				else if(expectedLabelSize.height <= 30)
+					newFrame.size.height = 32;
+				else
+					newFrame.size.height = expectedLabelSize.height+10;
+				LabelQRCode.frame = newFrame;
+				
+			}
+			/*********/
+			BtnQRcodeText.frame=CGRectMake(50, 214,300,60);
+			//[BtnQRcodeText setTitle:@"Jayna" forState:UIControlStateNormal];
+			BtnQRcodeText.backgroundColor = [UIColor clearColor];
+			BtnQRcodeText.contentEdgeInsets = UIEdgeInsetsMake(0, -268, 0, 0);
+			
+			btnCamera.frame=CGRectMake(0,768-57, 453, 37);
+			btnPhotoAlbum.frame=CGRectMake(453,768-57, 457, 37);
+			
+			imagebottombar.frame=CGRectMake(0, 768-108,910, 64);
+			
+			facebook.frame=CGRectMake(269, 768-104, 42, 44);
+			twitter.frame=CGRectMake(269+105, 768-104, 42, 44);
+			Mail.frame=CGRectMake(269+(105*2), 768-104, 42, 44);
+			trash.frame=CGRectMake(269+(105*3), 768-104, 42, 44);
+			
+		
+			TopRed.frame=CGRectMake(0,0,1004,48);
+			int y = Gap_L;
+			btnScan.frame = CGRectMake(18, y, btnWidth_L, btnHeight_L); // position in the parent view and set the size of the button
+			
+			y += btnHeight_L+Gap_L;
+			btnDashBoard.frame = CGRectMake(18, y, btnWidth_L, btnHeight_L); // position in the parent view and set the size of the button
+			
+			y += btnHeight_L+Gap_L;
+			btnWrite.frame = CGRectMake(18, y, btnWidth_L, btnHeight_L); // position in the parent view and set the size of the button
+			
+			y += btnHeight_L+Gap_L;
+			btnQuiz.frame = CGRectMake(18, y, btnWidth_L, btnHeight_L); // position in the parent view and set the size of the button
+			
+			y += btnHeight_L+Gap_L;
+			btnTemplate.frame = CGRectMake(18, y, btnWidth_L, btnHeight_L); // position in the parent view and set the size of the button
+			
+			y += btnHeight_L+Gap_L;
+			btnTwitter.frame = CGRectMake(18, y, btnWidth_L, btnHeight_L); // position in the parent view and set the size of the button
+			
+			y += btnHeight_L+Gap_L;
+			btnLibrary.frame = CGRectMake(18, y, btnWidth_L, btnHeight_L); // position in the parent view and set the size of the button
+			
+			y += btnHeight_L+Gap_L;
+			btnAbout.frame = CGRectMake(18, y, btnWidth_L, btnHeight_L); // position in the parent view and set the size of the button
+			
+			
+			[facebook setEnabled:TRUE];
+			
+			
+			return YES;
+		}
+	
+}
+
+#pragma mark CameraOpen
+-(IBAction) getPhoto_Album:(id) sender
+{	
+	
+
+	if(imageQR.hidden == TRUE)
+		lblIntroImage.hidden = NO;
+	else {
+		lblIntroImage.hidden = YES;
+	}
+
+	
+	Photosel=FALSE;
+	AlbumSel=TRUE;
+	LBlHeading.text = @"Scan";
+	readerView.hidden=YES;
+	[self initReader: @"ZBarReaderController"];
+	[self updateCropMask];
+	
+    picker = [[UIImagePickerController alloc] init];
+	picker.delegate = self;
+	if(appDel.ori==UIInterfaceOrientationPortrait || appDel.ori == UIInterfaceOrientationPortraitUpsideDown)
+	{
+		[btnPhotoAlbum setImage:[UIImage imageNamed:@"SEL_PHOTOAlbum.png"] forState:UIControlStateNormal];
+		[btnCamera setImage:[UIImage imageNamed:@"UNSEL__Camera.png"] forState:UIControlStateNormal];
+		
+	}else{
+		[btnPhotoAlbum setImage:[UIImage imageNamed:@"cmr (2).png"] forState:UIControlStateNormal];
+		[btnCamera setImage:[UIImage imageNamed:@"camera_selected.png"] forState:UIControlStateNormal];		
+	}
+	if((UIButton *) sender == btnPhotoAlbum) {
+		
+		if([reader respondsToSelector: @selector(readerView)]) {
+			reader.readerView.showsFPS = YES;
+			if(zoom)
+				reader.readerView.zoom = zoom;
+			reader.supportedOrientationsMask = (reader.showsZBarControls)
+            ? ZBarOrientationMaskAll
+            : ZBarOrientationMask(UIInterfaceOrientationPortrait); // tmp disable
+		}
+		reader.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
+		if(reader.sourceType == UIImagePickerControllerSourceTypeCamera)
+			reader.cameraOverlayView = (reader.showsZBarControls) ? nil : overlay;
+		manualBtn.enabled = TARGET_IPHONE_SIMULATOR ||
+        (reader.cameraMode == ZBarReaderControllerCameraModeDefault) ||
+        [reader isKindOfClass: [ZBarReaderViewController class]];
+		reader.showsHelpOnFail = NO;
+	//	[self presentModalViewController:reader animated:YES];
+		CGRect choosePhotoRect = CGRectMake(0,00,850,1024);
+		popReader = [[UIPopoverController alloc]initWithContentViewController:reader];
+		 [popReader presentPopoverFromRect:choosePhotoRect inView:btnPhotoAlbum permittedArrowDirections: UIPopoverArrowDirectionAny animated:YES];
+	} else {
+		picker.sourceType = UIImagePickerControllerSourceTypeCamera;
+	}
+}
+//-(IBAction) getPhoto:(id) sender {
+//	
+//	
+//	[self initReader: @"ZBarReaderController"];
+//	[self updateCropMask];
+//	if(appDel.ori==UIInterfaceOrientationPortrait || appDel.ori == UIInterfaceOrientationPortraitUpsideDown)
+//	{
+//		[btnPhotoAlbum setImage:[UIImage imageNamed:@"Potrait_Album_Unselected.png"] forState:UIControlStateNormal];
+//		[btnCamera setImage:[UIImage imageNamed:@"Potrait__Camera.png"] forState:UIControlStateNormal];
+//		
+//	}else{
+//		[btnPhotoAlbum setImage:[UIImage imageNamed:@"cmr (2).png"] forState:UIControlStateNormal];
+//		[btnCamera setImage:[UIImage imageNamed:@"cmr.png"] forState:UIControlStateNormal];
+//	}
+//	
+//	UIImagePickerController * picker = [[UIImagePickerController alloc] init];
+//	picker.delegate = self;
+//	
+//	if((UIButton *) sender == btnCamera) {
+//		
+//		
+//		
+//		
+//		if([reader respondsToSelector: @selector(readerView)]) {
+//			reader.readerView.showsFPS = YES;
+//			if(zoom)
+//				reader.readerView.zoom = zoom;
+//			reader.supportedOrientationsMask = (reader.showsZBarControls)
+//            ? ZBarOrientationMaskAll
+//            : ZBarOrientationMask(UIInterfaceOrientationPortrait); // tmp disable
+//		}
+//		//reader.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
+//		if(reader.sourceType == UIImagePickerControllerSourceTypeCamera)
+//			reader.cameraOverlayView = (reader.showsZBarControls) ? nil : overlay;
+//		manualBtn.enabled = TARGET_IPHONE_SIMULATOR ||
+//        (reader.cameraMode == ZBarReaderControllerCameraModeDefault) ||
+//        [reader isKindOfClass: [ZBarReaderViewController class]];
+//		
+//		[self presentModalViewController:reader animated:YES];
+//		/*CGRect choosePhotoRect = CGRectMake(80,200,850,1024);
+//		UIPopoverController *popReader = [[UIPopoverController alloc]initWithContentViewController:reader];
+//		[popReader presentPopoverFromRect:choosePhotoRect inView:self.view permittedArrowDirections: UIPopoverArrowDirectionDown animated:YES];*/
+//	} else {
+//		picker.sourceType = UIImagePickerControllerSourceTypeCamera;
+//	}
+//	
+//}
+
+-(IBAction) getPhoto:(id) sender {
+	
+	
+
+	lblIntroImage.hidden = YES;
+	dateLabel.hidden=YES;
+	TimeLabel.hidden=YES;
+	imageQR.hidden=YES;
+	LabelQRCode.hidden=YES;
+	Photosel=TRUE;
+	AlbumSel=FALSE;
+LBlHeading.text = @"Scan";
+	[self initReader: @"ZBarReaderController"];
+	[self updateCropMask];
+	if(appDel.ori==UIInterfaceOrientationPortrait || appDel.ori == UIInterfaceOrientationPortraitUpsideDown)
+		{
+			[btnPhotoAlbum setImage:[UIImage imageNamed:@"UN_PhotoAlbum.png"] forState:UIControlStateNormal];
+			[btnCamera setImage:[UIImage imageNamed:@"SEL_Camera.png"] forState:UIControlStateNormal];
+			
+			}else{
+				[btnPhotoAlbum setImage:[UIImage imageNamed:@"cmr (3).png"] forState:UIControlStateNormal];
+				[btnCamera setImage:[UIImage imageNamed:@"cmr (1).png"] forState:UIControlStateNormal];
+			}
+	
+	picker = [[UIImagePickerController alloc] init];
+	picker.delegate = self;
+	
+	if((UIButton *)
+	   sender == btnCamera) {
+		
+		
+		
+		
+		if([reader respondsToSelector: @selector(readerView)]) {
+			reader.readerView.showsFPS = YES;
+			if(zoom)
+				reader.readerView.zoom = zoom;
+			reader.supportedOrientationsMask = (reader.showsZBarControls)
+			? ZBarOrientationMaskAll
+			: ZBarOrientationMask(UIInterfaceOrientationPortrait); // tmp disable
+			}
+		//reader.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
+		if(reader.sourceType == UIImagePickerControllerSourceTypeCamera)
+			reader.cameraOverlayView = (reader.showsZBarControls) ? nil : overlay;
+		manualBtn.enabled = TARGET_IPHONE_SIMULATOR ||
+		(reader.cameraMode == ZBarReaderControllerCameraModeDefault) ||
+		[reader isKindOfClass: [ZBarReaderViewController class]];
+		
+		readerView.hidden=NO;
+		readerView.userInteractionEnabled = NO;
+		readerView.readerDelegate = self;
+		[readerView start];
+		//reader.cameraViewTransform 
+		//[reader.readerView setScanCrop:(CGRect){ { 0, 0 }, { 0.43, 1 } }];
+		//reader.readerView.frame=CGRectMake(200, 100, 300, 300);
+		//[self.view addSubview:reader.readerView];
+		//[self.view bringSubviewToFront:reader.view];
+		//[self presentModalViewController:reader animated:YES];
+		/*CGRect choosePhotoRect = CGRectMake(80,200,850,1024);
+				UIPopoverController *popReader = [[UIPopoverController alloc]initWithContentViewController:reader];
+				[popReader presentPopoverFromRect:choosePhotoRect inView:self.view permittedArrowDirections: UIPopoverArrowDirectionDown animated:YES];*/
+		} else {
+			picker.sourceType = UIImagePickerControllerSourceTypeCamera;
+			}
+	
+}
+
+- (void) readerView: (ZBarReaderView*) view
+     didReadSymbols: (ZBarSymbolSet*) syms
+          fromImage: (UIImage*) img
+{
+		
+	if([GImage retainCount] > 0)
+	{
+		[GImage release];
+		
+	}
+	if([GsymData retainCount] > 0)
+	{
+		[GsymData release];
+		
+	}
+	//imgHighlight.hidden = YES;.
+	//appDel.img.image = imageQR.image;
+	GImage = [img retain];
+	
+	GsymData = [(ZBarSymbolSet *)syms retain];
+	[self performSelector:@selector(showResult_ScannedImg) withObject:nil afterDelay:2.0];
+}
+
+-(void)showResult_ScannedImg
+{
+	Photosel = FALSE;//Jayna040212
+	LBlHeading.text = @"Scan";
+	imageQR.hidden=NO;
+	imagebottombar.hidden=NO;
+	BtnQRcodeText.hidden=NO;
+	facebook.hidden=NO;
+	twitter.hidden=NO;
+	Mail.hidden=NO;
+	Mail.enabled = YES;
+	[scanView addSubview:trash];
+	trash.hidden=NO;
+	dateLabel.hidden=NO;
+	TimeLabel.hidden=NO;
+	
+	LabelQRCode.hidden=NO;
+	
+	//imgHighlight.hidden = NO;
+	readerView.hidden=YES;
+	
+	[self TimeandDate];
+	NSString *data;
+    // do something useful with results
+    for(ZBarSymbol *sym in GsymData) {
+       // NSLog(@"data=======>%@", [sym.data substringToIndex:6]);
+		LabelQRCode.text=sym.data;
+		if([[sym.data substringToIndex:3] isEqualToString:@"htt"] || 
+		   [[sym.data substringToIndex:3] isEqualToString:@"WWW"] ||
+		   [[sym.data substringToIndex:3] isEqualToString:@"www"] )
+		{
+			LabelQRCode.textColor = [UIColor blueColor];
+			LBlHeading.text = @"URL";
+		}
+		else {
+			LabelQRCode.textColor = [UIColor blackColor];
+		}
+		
+		
+		//For Event
+		data= [sym.data stringByReplacingOccurrencesOfString:@"DTSTART:" withString:@"\nStart Date & Time "];
+		data= [data stringByReplacingOccurrencesOfString:@"DTEND:" withString:@"\nEnd Date & Time "];
+		data= [data stringByReplacingOccurrencesOfString:@"BEGIN:VEVENT" withString:@""];
+		data= [data stringByReplacingOccurrencesOfString:@"END:VEVENT" withString:@""];
+		data= [data stringByReplacingOccurrencesOfString:@"SUMMARY:" withString:@"Event:"];
+		data= [data stringByReplacingOccurrencesOfString:@"   " withString:@""];
+		
+		data=[data stringByAppendingFormat:@"\n"];
+		
+		data= [data stringByReplacingOccurrencesOfString:@";" withString:@"\n"];
+		
+		if([sym.data length] >= 15)
+		{
+			if([[sym.data substringToIndex:15] isEqualToString:@"BEGIN:VCALENDAR"])
+			{
+				LBlHeading.text = @"Event";
+			}
+			
+		}
+		
+		if([sym.data length] >= 10)
+		{
+			if([[sym.data substringToIndex:11] isEqualToString:@"BEGIN:VCARD"])
+			{
+				LBlHeading.text = @"Contact";
+			}
+		}
+
+		 
+		LabelQRCode.text=data;
+		
+		//NSMutableAttributedString* attrStr1 = [NSMutableAttributedString attributedStringWithString:data];
+	//	stDate = [data substringWithRange:[data rangeOfString:@"Start Date & Time"]];
+		
+		/*[attrStr1 setTextBold:YES range:[data rangeOfString:@"Event:"]];
+		[attrStr1 setTextBold:YES range:[str rangeOfString:@"Start Date & Time:"]];
+		[attrStr1 setTextBold:YES range:[str rangeOfString:@"End Date & Time:"]];
+		[attrStr1 setTextBold:YES range:[str rangeOfString:@"Address:"]];
+		[attrStr1 setTextBold:YES range:[str rangeOfString:@"Notes:"]];*/
+		
+		
+		if([sym.data length] > 6)
+		//For SMS Data
+			//For SMS Data
+			if([[sym.data substringToIndex:6] isEqualToString:@"SMSTO:"])
+			{
+				data= [sym.data stringByReplacingOccurrencesOfString:@"SMSTO:" withString:@"From: "];
+				NSArray* components = [data componentsSeparatedByString:@":"];
+				NSString *strTempSMS=@"";
+				for(int i=0;i<[components count];i++)
+				{
+					if(i==[components count]-1)
+						strTempSMS = [strTempSMS stringByAppendingFormat:@"\n%@",[components objectAtIndex:i]];
+					else {
+						if(i==0)
+							strTempSMS = [strTempSMS stringByAppendingFormat:@"%@:",[components objectAtIndex:i]];
+						else
+							strTempSMS = [strTempSMS stringByAppendingFormat:@"%@",[components objectAtIndex:i]];
+						
+					}
+					
+					
+					
+				}
+				LabelQRCode.text=strTempSMS;
+				LBlHeading.text = @"SMS";
+				
+			}
+		
+		//For Mail
+		if([sym.data length] > 10)
+		if([[sym.data substringToIndex:10] isEqualToString:@"MATMSG:TO:"])
+		{
+			data= [sym.data stringByReplacingOccurrencesOfString:@"MATMSG:TO:" withString:@"From: "];
+			data = [data stringByAppendingFormat:@"\n"];
+			data = [data stringByReplacingOccurrencesOfString:@"SUB:" withString:@"\nSubject: "];
+			data = [data stringByAppendingFormat:@"\n"];
+			data = [data stringByReplacingOccurrencesOfString:@"BODY:" withString:@"\n"];
+			data = [data stringByReplacingOccurrencesOfString:@";" withString:@""];
+			LabelQRCode.text=data;
+			LBlHeading.text = @"Email";
+		}
+		if([[data substringToIndex:7] isEqualToString:@"MAILTO:"])
+		{
+			data= [data stringByReplacingOccurrencesOfString:@"MAILTO:" withString:@"From: "];
+			LabelQRCode.text=data;
+			LBlHeading.text = @"Email";
+		}
+		
+		//For Tel NO
+		if([sym.data length] > 6)
+		if([[sym.data substringToIndex:6] isEqualToString:@"TEL NO"] ||
+		   [[sym.data substringToIndex:4] isEqualToString:@"TEL:"] )
+		{
+			 data= [sym.data stringByReplacingOccurrencesOfString:@"TEL NO" withString:@"Phone: "];
+			 data= [sym.data stringByReplacingOccurrencesOfString:@"TEL:" withString:@"Phone: "];
+			//data= [sym.data stringByReplacingOccurrencesOfString:@"TEL NO|" withString:@""];
+			LabelQRCode.text=data;
+			LBlHeading.text = @"Phone";
+			 
+			
+		}
+		
+		
+
+		
+		imageQR.image=GImage;
+        break;
+    }
+	
+	if([LBlHeading.text isEqualToString:@"Scan"])
+		LBlHeading.text = @"Text";
+	
+	appDel.QRScanDate=dateLabel.text;
+	appDel.QRScanText=LabelQRCode.text;
+	appDel.QRScanTime=TimeLabel.text;
+	appDel.catString = LBlHeading.text;
+	[self selectcategory:GImage];
+	//data = nil;
+	//[self saveQrCode];
+	
+}
+#pragma mark imagePickerController
+
+- (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker
+{
+	[picker dismissModalViewControllerAnimated:YES];	
+}
+- (void)  imagePickerController: (UIImagePickerController*) picker
+  didFinishPickingMediaWithInfo: (NSDictionary*) info
+{
+	if(appDel.ori==UIInterfaceOrientationPortrait || appDel.ori == UIInterfaceOrientationPortraitUpsideDown)
+	{
+		[btnPhotoAlbum setImage:[UIImage imageNamed:@"PhotoAlbum_Icon_UnSelected.png"] forState:UIControlStateNormal];
+		[btnCamera setImage:[UIImage imageNamed:@"UNSEL__Camera.png"] forState:UIControlStateNormal];
+
+	}else{
+		[btnPhotoAlbum setImage:[UIImage imageNamed:@"cmr (1).png"] forState:UIControlStateNormal];
+		[btnCamera setImage:[UIImage imageNamed:@"cmr (2).png"] forState:UIControlStateNormal];
+	}
+	
+	[popReader dismissPopoverAnimated:YES];
+	NSLog(@"info===>%@",[info allKeys]);
+    id <NSFastEnumeration> results =
+	[info objectForKey: ZBarReaderControllerResults];
+	ZBarSymbol *bestResult=[[[ZBarSymbol alloc]init] autorelease];
+	ZBarSymbol *sym=[[[ZBarSymbol alloc]init] autorelease];
+	
+    UIImage *image = [info objectForKey: UIImagePickerControllerOriginalImage];
+	
+      if(image)
+	  {
+         imageQR.image = image;
+		  image = nil;
+		  
+	  }
+	
+	appDel.img = imageQR;
+	imageQR.hidden=NO;
+	imagebottombar.hidden=NO;
+	BtnQRcodeText.hidden=NO;
+	facebook.hidden=NO;
+	twitter.hidden=NO;
+	Mail.hidden=NO;
+	Mail.enabled = YES;
+	[scanView addSubview:trash];
+	trash.hidden=NO;
+	dateLabel.hidden=NO;
+	TimeLabel.hidden=NO;
+    [self TimeandDate];// Current Time & Date
+	int quality = 0;
+    bestResult = nil;
+    for(sym in results) {
+        int q = sym.quality;
+        if(quality < q) {
+            quality = q;
+            bestResult = sym;
+        }
+    }
+    [self performSelector: @selector(presentResult:)
+			   withObject: bestResult
+			   afterDelay: .001];
+    if(!continuous)
+        [picker dismissModalViewControllerAnimated: YES];
+}
+
+#pragma mark QRSCanner 
+- (void) initReader: (NSString*) clsName
+{
+    [reader release];
+    Class cls = [[NSBundle mainBundle]
+				 classNamed: clsName];
+    assert(cls);
+    reader = [cls new];
+    assert(reader);
+    reader.readerDelegate = self;
+	readerView.readerDelegate = self;
+	
+	[ZBarReaderView class];
+	
+#if 0
+    // apply defaults for demo
+    ZBarImageScanner *scanner = reader.scanner;
+    continuous = NO;
+    zoom = 1;
+    reader.showsZBarControls = NO;
+	reader.rotating = NO;
+	reader.supportedOrientationsMask = 0;
+	//reader.cameraViewTransform = 
+    reader.scanCrop = CGRectMake(0, .35, 1, .3);
+	
+    [defaultSymbologies release];
+    defaultSymbologies =
+	[[NSSet alloc]
+	 initWithObjects:
+	 [NSNumber numberWithInteger: ZBAR_CODE128],
+	 nil];
+    [scanner setSymbology: 0
+				   config: ZBAR_CFG_ENABLE
+					   to: 0];
+    for(NSNumber *sym in defaultSymbologies)
+        [scanner setSymbology: sym.integerValue
+					   config: ZBAR_CFG_ENABLE
+						   to: 1];
+	
+    [scanner setSymbology: 0
+				   config: ZBAR_CFG_X_DENSITY
+					   to: (xDensity = 0)];
+    [scanner setSymbology: 0
+				   config: ZBAR_CFG_Y_DENSITY
+					   to: (yDensity = 1)];
+#endif
+}
+
+- (void) updateCropMask
+{
+    CGRect r = reader.scanCrop;
+    r.origin.x *= 426;
+    r.origin.y *= 320;
+    r.size.width *= 426;
+    r.size.height *= 320;
+    UIView *mask = [masks objectAtIndex: 0];
+    mask.frame = CGRectMake(0, -426, 320, r.origin.x);
+    mask = [masks objectAtIndex: 1];
+    mask.frame = CGRectMake(0, r.origin.x - 426, r.origin.y, r.size.width);
+	
+    r.origin.y += r.size.height;
+    mask = [masks objectAtIndex: 2];
+    mask.frame = CGRectMake(r.origin.y, r.origin.x - 426,
+                            320 - r.origin.y, r.size.width);
+	
+    r.origin.x += r.size.width;
+    mask = [masks objectAtIndex: 3];
+    mask.frame = CGRectMake(0, r.origin.x - 426, 320, 426 - r.origin.x);
+	[mask release];
+}
+
+- (void) presentResult: (ZBarSymbol*) sym
+{
+	
+	lblIntroImage.hidden = YES;
+	
+	LBlHeading.text = @"Scan";
+    found = sym || imageQR.image;
+    NSString *typeName = @"NONE";
+    NSString *data = @"";
+    if(sym) {
+        typeName = sym.typeName;
+        data = sym.data;
+    }
+    typeLabel.text = typeName;
+    dataLabel.text = data;
+	
+    if(continuous) {
+        typeOvl.text = typeName;
+        dataOvl.text = data;
+    }
+	
+    NSLog(@"imagePickerController:didFinishPickingMediaWithInfo:\n");
+    NSLog(@"    type=%@ data=%@\n", typeName, data);
+
+    CGSize size = [data sizeWithFont: [UIFont systemFontOfSize: 17]
+				   constrainedToSize: CGSizeMake(288, 2000)
+					   lineBreakMode: UILineBreakModeCharacterWrap];
+    dataHeight = size.height + 26;
+    if(dataHeight > 2000)
+        dataHeight = 2000;
+	
+	//LabelQRCode.text=sym.data;
+	if([[data substringToIndex:3] isEqualToString:@"htt"] || 
+	   [[data substringToIndex:3] isEqualToString:@"WWW"] ||
+	   [[data substringToIndex:3] isEqualToString:@"www"] )
+	{
+		LabelQRCode.textColor = [UIColor blueColor];
+		LBlHeading.text = @"URL";
+	}
+
+	else {
+		LabelQRCode.textColor = [UIColor blackColor];
+	}
+	
+	//For Event
+	if([[sym.data substringToIndex:15] isEqualToString:@"BEGIN:VCALENDAR"])
+	{
+		LBlHeading.text = @"Event";
+	}
+	if([[sym.data substringToIndex:11] isEqualToString:@"BEGIN:VCARD"])
+	{
+		LBlHeading.text = @"Contact";
+	}
+	
+	data= [sym.data stringByReplacingOccurrencesOfString:@"DTSTART:" withString:@"\nStart Date & Time "];
+	
+	data= [data stringByReplacingOccurrencesOfString:@"DTEND:" withString:@"\nEnd Date & Time "];
+	data= [data stringByReplacingOccurrencesOfString:@"BEGIN:VEVENT" withString:@""];
+	data= [data stringByReplacingOccurrencesOfString:@"END:VEVENT" withString:@""];
+	data= [data stringByReplacingOccurrencesOfString:@"SUMMARY:" withString:@"Event:"];
+	data=[data stringByAppendingFormat:@"\n"];
+	data= [data stringByReplacingOccurrencesOfString:@";" withString:@"\n"];
+	appDel.QRScanText=LabelQRCode.text=data;
+		
+	//For SMS Data
+	if([data length] > 6)
+		
+		//For SMS Data
+		if([[sym.data substringToIndex:6] isEqualToString:@"SMSTO:"])
+		{
+			data= [sym.data stringByReplacingOccurrencesOfString:@"SMSTO:" withString:@"From: "];
+			NSArray* components = [data componentsSeparatedByString:@":"];
+			NSString *strTempSMS=@"";
+			for(int i=0;i<[components count];i++)
+			{
+				if(i==[components count]-1)
+					strTempSMS = [strTempSMS stringByAppendingFormat:@"\n%@",[components objectAtIndex:i]];
+				else {
+					if(i==0)
+						strTempSMS = [strTempSMS stringByAppendingFormat:@"%@:",[components objectAtIndex:i]];
+					else
+						strTempSMS = [strTempSMS stringByAppendingFormat:@"%@",[components objectAtIndex:i]];
+					
+				}
+
+				
+				
+			}
+			appDel.QRScanText=LabelQRCode.text=strTempSMS;
+			LBlHeading.text = @"SMS";
+		}
+
+	
+	
+	//For Mail
+	if([data length] > 10)
+	if([[data substringToIndex:10] isEqualToString:@"MATMSG:TO:"])
+	{
+		data= [data stringByReplacingOccurrencesOfString:@"MATMSG:TO:" withString:@"From: "];
+		data = [data stringByAppendingFormat:@"\n"];
+		data = [data stringByReplacingOccurrencesOfString:@"SUB:" withString:@"\nSubject: "];
+		data = [data stringByAppendingFormat:@"\n"];
+		data = [data stringByReplacingOccurrencesOfString:@"BODY:" withString:@"\n"];
+		data = [data stringByReplacingOccurrencesOfString:@";" withString:@""];
+		appDel.QRScanText=LabelQRCode.text=data;
+		LBlHeading.text = @"Email";
+	}
+	
+	if([[data substringToIndex:7] isEqualToString:@"MAILTO:"])
+	{
+		data= [data stringByReplacingOccurrencesOfString:@"MAILTO:" withString:@"From: "];
+		LabelQRCode.text=data;
+		LBlHeading.text = @"Email";
+	}
+	
+	//For Tel NO
+	if([data length] > 6)
+	if([[data substringToIndex:6] isEqualToString:@"TEL NO"] ||
+	   [[data substringToIndex:4] isEqualToString:@"TEL:"] )
+	{
+		data= [data stringByReplacingOccurrencesOfString:@"TEL NO" withString:@"Phone: "];
+		data= [data stringByReplacingOccurrencesOfString:@"TEL:" withString:@"Phone: "];
+		appDel.QRScanText=LabelQRCode.text=data;
+		LBlHeading.text = @"Phone";
+	}
+	
+	if([LBlHeading.text isEqualToString:@"Scan"])
+		LBlHeading.text = @"Text";
+	
+	LabelQRCode.hidden = FALSE;
+	
+	appDel.QRScanDate=dateLabel.text;
+	//appDel.QRScanText=LabelQRCode.text=data;
+	appDel.QRScanTime=TimeLabel.text;
+	appDel.img.image = imageQR.image;
+	
+	appDel.catString = LBlHeading.text;
+	[self selectcategory:imageQR.image];
+	
+	if(appDel.ori==UIInterfaceOrientationPortrait || appDel.ori == UIInterfaceOrientationPortraitUpsideDown)
+	{
+		
+		[btnPhotoAlbum setImage:[UIImage imageNamed:@"SEL_PHOTOAlbum.png"] forState:UIControlStateNormal];
+		
+	}
+	
+	
+	else{
+		
+		[btnPhotoAlbum setImage:[UIImage imageNamed:@"cmr (2).png"] forState:UIControlStateNormal];
+		
+		
+	}
+	/*UILabel *lbltemp = [[UILabel alloc]initWithFrame:CGRectMake(40, 214,800,60)];
+	lbltemp.backgroundColor = [UIColor redColor];
+	[self.view addSubview:lbltemp];
+	[self.view bringSubviewToFront:LabelQRCode];*/
+	//[self saveQrCode];
+	
+	[typeLabel release];
+	[dataLabel release];
+	
+}
+
+- (void)didReceiveMemoryWarning {
+	// Releases the view if it doesn't have a superview.
+    [super didReceiveMemoryWarning];
+	
+	// Release any cached data, images, etc that aren't in use.
+}
+
+- (void)viewDidUnload {
+	// Release any retained subviews of the main view.
+	// e.g. self.myOutlet = nil;
+}
+
+
+- (void)dealloc {
+    [super dealloc];
+	
+	
+	[btnScan release];
+	[btnDashBoard release];
+	[btnWrite release];
+	[btnTemplate release];
+	[btnTwitter release];
+	[btnLibrary release];
+	[btnAbout release];
+	[btnQuiz release];
+	[btnNext release];
+	[btnPrevious release];	
+	[ScrlTabButtn release];
+}
+
+@end

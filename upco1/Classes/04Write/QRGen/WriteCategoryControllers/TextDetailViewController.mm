@@ -1,0 +1,719 @@
+//
+//  TextDetailViewController.m
+//  KrenMarketing
+//
+//  Created by amrit on 04/03/12.
+//  Copyright 2012 __MyCompanyName__. All rights reserved.
+//
+
+#import "TextDetailViewController.h"
+#import "QRGenDetailViewController.h"
+#import "FileManager.h"
+#import "qr_draw_png.h"
+#import "QR_Encode.h"
+#import "DAL.h"
+@implementation TextDetailViewController
+
+@synthesize isBold,isItalic,isUnderline;
+// The designated initializer.  Override if you create the controller programmatically and want to perform customization that is not appropriate for viewDidLoad.
+
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self) {
+        // Custom initialization.
+    }
+    return self;
+}
+
+
+
+// Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+	
+	appDel = (KrenMarketingAppDelegate*)[[UIApplication sharedApplication]delegate];
+	
+	Ego_Textview = [[EGOTextView alloc] initWithFrame:CGRectMake(20, 97, 280, 167)];
+	//Ego_Textview.backgroundColor = [UIColor redColor];
+	Ego_Textview.autocorrectionType = UITextAutocorrectionTypeYes;
+	//Ego_Textview.delegate = self;
+	[self.view addSubview:Ego_Textview];
+	
+	Ego_Textview.delegate = (id<EGOTextViewDelegate>)self;
+	Ego_Textview.returnKeyType = UIReturnKeyDone;
+
+	
+	lblPlaceholder = [[UILabel alloc] initWithFrame:CGRectMake(29, 96, 50, 30)];
+	lblPlaceholder.textColor = [UIColor lightGrayColor];
+	lblPlaceholder.backgroundColor = [UIColor clearColor];
+	lblPlaceholder.font = [UIFont fontWithName:@"Helvetica" size:17];
+	lblPlaceholder.text = @"Text";
+	[self.view addSubview:lblPlaceholder];
+	
+	appDel.fontdic=[[NSMutableDictionary alloc] init];
+	[appDel.fontdic setObject:@"NO" forKey:@"isBold"];	
+	[appDel.fontdic setObject:@"NO" forKey:@"isItalic"];	
+	[appDel.fontdic setObject:@"NO" forKey:@"isUnderline"];
+	
+	
+	[appDel.fontdic setObject:@"1" forKey:@"styleIndex"];
+	[appDel.fontdic setObject:@"21" forKey:@"fontAlign"];
+	[appDel.fontdic setObject:@"101" forKey:@"fontColor"];
+	
+	[appDel.fontdic setObject:@"24" forKey:@"fontSize"];
+	[appDel.fontdic setObject:@"101" forKey:@"fontColor"];
+	[appDel.fontdic setObject:@"Times New Roman" forKey:@"fontName"];
+	
+	isBold=NO;
+	isUnderline=NO;
+	isItalic=NO;
+	
+	if([Ego_Textview.text length]>0)
+	{
+		
+	}
+	else 
+	{
+		lblPlaceholder.hidden = NO;
+	}
+	
+	//if ([[[UIDevice currentDevice] systemVersion] floatValue] >= 3.2) {
+//		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardDidShow:) name:UIKeyboardDidShowNotification object:nil];
+//	} else {
+//		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
+//	}
+	
+}
+
+-(void)addButtonToKeyboard
+{ //add toolbar
+	
+	UIToolbar * toolbar = [[UIToolbar alloc] initWithFrame: CGRectMake(0, -32, 320, 40)];
+	
+	toolbar.barStyle = UIBarStyleBlack;
+	
+	//add button
+	UIBarButtonItem *space = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:self action:nil];
+	
+	UIBarButtonItem *doneButton = [[UIBarButtonItem alloc] initWithTitle:@"Done" style:UIBarButtonItemStyleDone target:self action:@selector(onDone:)];
+	
+	toolbar.items = [NSArray arrayWithObjects:space,doneButton, nil];
+	
+	// locate keyboard view
+	
+	UIWindow* tempWindow = [[[UIApplication sharedApplication] windows] objectAtIndex:1];
+	
+	UIView* keyboard;
+	
+	for(int i=0; i<[tempWindow.subviews count]; i++) {
+		
+		//get the textField
+		
+		keyboard = [tempWindow.subviews objectAtIndex:i];
+		
+		// keyboard found, add the button
+		
+		NSLog(@"%@", [keyboard description]);
+		
+		if ([[[UIDevice currentDevice] systemVersion] floatValue] >= 3.2) {
+			
+			if([[keyboard description] hasPrefix:@"<UIPeripheralHost"] == YES)
+				
+				[keyboard addSubview:toolbar];
+			
+		} else if([[keyboard description] hasPrefix:@"<UIKeyboard"] == YES){
+			
+			[keyboard addSubview:toolbar];
+			
+		}
+		
+	}
+	
+}
+-(void)keyboardWillShow:(NSNotification *)note 
+{
+	
+	// if clause is just an additional precaution, you could also dismiss it
+	
+	if ([[[UIDevice currentDevice] systemVersion] floatValue] < 3.2) {
+		
+		//NSNotification * notification = note;
+		
+		[self addButtonToKeyboard];
+		
+	}
+	
+}
+
+-(void)keyboardDidShow:(NSNotification *)note
+{
+	
+	// if clause is just an additional precaution, you could also dismiss it
+	
+	if ([[[UIDevice currentDevice] systemVersion] floatValue] >= 3.2) 
+	{
+		
+		[self addButtonToKeyboard];
+		
+	}
+	
+}
+
+
+- (void)onDone:(id)sender 
+{
+	//[[NSNotificationCenter defaultCenter] removeObserver:self];
+//	[Ego_Textview resignFirstResponder];	
+	
+}
+
+
+-(IBAction)changeFont
+{
+	
+	obj_Font = [[FontViewViewController alloc] initWithNibName:@"FontViewController_iphone" bundle:nil];
+	obj_Font.delegate=self;
+	if(appDel.fontdic)
+	{
+		obj_Font.styleIndex = [[appDel.fontdic valueForKey:@"styleIndex"] intValue];
+		obj_Font.alignIndex =  [[appDel.fontdic valueForKey:@"fontAlign"] intValue];
+		obj_Font.colorIndex =  [[appDel.fontdic valueForKey:@"fontColor"] intValue];
+		obj_Font.lastFontIndex = [[appDel.fontdic valueForKey:@"lastFont"] intValue];
+		obj_Font.lastfontSize =[[appDel.fontdic valueForKey:@"lastSize"] intValue];
+		if (obj_Font.lastfontSize==0) {
+			obj_Font.lastfontSize=24;
+		}
+		NSLog(@"lastfont===>%d",obj_Font.lastfontSize);
+		/*if (objFontView.styleIndex==0) {
+		 objFontView.styleIndex = 11;
+		 objFontView.alignIndex = 21;
+		 objFontView.colorIndex = 101;
+		 objFontView.lastFontIndex=0;			
+		 }else if (objFontView.alignIndex==0) {
+		 objFontView.styleIndex = 11;
+		 objFontView.alignIndex = 21;
+		 objFontView.colorIndex = 101;
+		 objFontView.lastFontIndex=0;
+		 }*/
+	}
+	else 
+	{
+		obj_Font.styleIndex = 1;
+		obj_Font.alignIndex = 21;
+		obj_Font.colorIndex = 101;
+		obj_Font.lastFontIndex=0;
+		isBold=NO;
+		isUnderline=NO;
+		isItalic=NO;
+		
+	}
+	[self presentModalViewController:obj_Font animated:TRUE];
+	[obj_Font release];
+
+}
+/*
+// Override to allow orientations other than the default portrait orientation.
+- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
+    // Return YES for supported orientations.
+    return (interfaceOrientation == UIInterfaceOrientationPortrait);
+}
+*/
+
+-(void)TimeandDate
+{
+	NSDate* date = [NSDate date];
+	NSDateFormatter *Date1=[[[NSDateFormatter alloc] init] autorelease];
+	NSDateFormatter *Time1=[[[NSDateFormatter alloc] init] autorelease];
+	[Date1 setDateFormat:@"E MM/dd/yy"];
+	[Time1 setDateFormat:@"h:MM aa"];
+	
+	
+	NSString *Date12=[Date1 stringFromDate:date];
+	NSString *Time12=[Time1 stringFromDate:date];	
+	
+	dateLabel= [[[UILabel alloc]init]autorelease];
+	TimeLabel= [[[UILabel alloc]init]autorelease];
+	dateLabel.text = [NSString stringWithFormat:@"Created and Added to Library on %@",Date12];
+	[TimeLabel setText:Time12];
+}
+
+
+
+-(void)MainDescription
+{
+	
+	NSString* str=@"";
+	
+	if ([Ego_Textview.text length] > 0)
+	{
+		str = [str stringByAppendingString:[NSString stringWithFormat:@"%@",Ego_Textview.text]];
+		str = [str stringByAppendingFormat:@"\n"];
+	}
+	
+	if(appDel.fontdic)
+	{
+		
+		int style=[[appDel.fontdic valueForKey:@"styleIndex"] intValue];
+		int color=[[appDel.fontdic valueForKey:@"fontColor"]intValue];
+		int alignment=[[appDel.fontdic valueForKey:@"fontAlign"]intValue];
+		NSString* fontname=[appDel.fontdic valueForKey:@"fontName"];
+		int size=[[appDel.fontdic valueForKey:@"fontSize"]intValue];
+		
+		//isBold=obj_Font.Bold;
+		//isItalic=obj_Font.Italic;
+	//	isUnderline=obj_Font.Underline;
+		
+		strattr = [NSMutableAttributedString attributedStringWithString:str];
+		
+		[strattr setFont:[UIFont fontWithName:fontname size:size]];
+		if(color==101)
+			[strattr setTextColor:[UIColor blackColor]];
+		else if(color==102)
+			[strattr setTextColor:[UIColor whiteColor]];
+		else if(color==103)
+			[strattr setTextColor:[UIColor grayColor]];
+		else if(color==104)
+			[strattr setTextColor:[UIColor yellowColor]];
+		else if(color==105)  
+			[strattr setTextColor:[UIColor colorWithRed:0 green:0.6 blue:0.8 alpha:1]];
+		else if(color==106)
+			[strattr setTextColor:[UIColor colorWithRed:0 green:0.4 blue:0 alpha:1]];
+		else if(color==107)
+			[strattr setTextColor:[UIColor redColor]];
+		else if(color==108)
+			[strattr setTextColor:[UIColor orangeColor]];
+		
+		//[attrStr setTextBold:YES range:[TxtViewText.text rangeOfString:TxtViewText.text]];
+		[strattr setFontFamily:fontname size:size bold:isBold italic:isItalic range:[str rangeOfString:str]];
+		
+		if(isUnderline)
+			[strattr setTextIsUnderlined:YES];
+		
+		// -(void)setFontFamily:(NSString*)fontFamily size:(CGFloat)size bold:(BOOL)isBold italic:(BOOL)isItalic range:(NSRange)range {
+		//-(void)setTextAlignment:(CTTextAlignment)alignment lineBreakMode:(CTLineBreakMode)lineBreakMode
+		//[attrStr setTextAlignment:UITextAlignmentLeft lineBreakMode:UILineBreakModeCharacterWrap];
+		//[txtDisplayWEb setLineBreakMode:UILineBreakModeCharacterWrap];
+//		[txtDisplayWEb setNumberOfLines:9999];
+//		txtDisplayWEb.attributedText=attrStr;
+//		if(alignment==21)
+//			txtDisplayWEb.textAlignment=UITextAlignmentLeft;
+//		else if(alignment==22)
+//			txtDisplayWEb.textAlignment=UITextAlignmentCenter;
+//		else if(alignment==23)
+//			txtDisplayWEb.textAlignment=UITextAlignmentRight;
+//		else if(alignment==24)
+//			txtDisplayWEb.textAlignment=UITextAlignmentJustify;
+//		else 
+//			txtDisplayWEb.textAlignment=UITextAlignmentJustify;
+	}
+	else 
+	{
+		strattr = [NSMutableAttributedString attributedStringWithString:str];
+		[strattr setFontFamily:@"Times New Roman" size:24 bold:NO italic:NO range:[str rangeOfString:str]];
+		//txtDisplayWEb.attributedText=attrStr;
+	}
+	
+	
+//	strattr = [NSMutableAttributedString attributedStringWithString:str];
+//	[strattr setTextColor:[UIColor blackColor]];
+//	[strattr setFontFamily:@"Helvetica" size:18 bold:NO italic:NO range:[str rangeOfString:str]];
+	
+	//if([Ego_Textview.text length] > 0)
+//	{
+//		[strattr setTextBold:YES range:[str rangeOfString:@"Text:"]];
+//	}
+	
+	height;
+	
+	
+	CGSize maximumLabelSize1 = CGSizeMake(280,9999);
+	
+//	CGSize expectedLabelSize1 = [str sizeWithFont:[UIFont fontWithName:@"Helvetica"] constrainedToSize:maximumLabelSize1 lineBreakMode:UILineBreakModeWordWrap];
+	
+	CGSize expectedLabelSize1 = [str sizeWithFont:[UIFont fontWithName:[appDel.fontdic valueForKey:@"fontName"] size:24] constrainedToSize:maximumLabelSize1 lineBreakMode:UILineBreakModeWordWrap];
+	height = expectedLabelSize1.height + 20;	
+
+	
+	sampleString = str;
+	
+	//[Ego_Textview resignFirstResponder];
+	
+	
+	[self TimeandDate];
+	 
+	 
+	
+	/*
+	NSString* str=@"";
+	
+	if ([Ego_Textview.text length] > 0)
+	{
+		str = [str stringByAppendingString:[NSString stringWithFormat:@"Text: %@",Ego_Textview.text]];
+		str = [str stringByAppendingFormat:@"\n"];
+	}
+	
+	strattr = [NSMutableAttributedString attributedStringWithString:str];
+	[strattr setTextColor:[UIColor blackColor]];
+	[strattr setFontFamily:@"Helvetica" size:18 bold:NO italic:NO range:[str rangeOfString:str]];
+	
+	if([Ego_Textview.text length] > 0)
+	{
+		[strattr setTextBold:YES range:[str rangeOfString:@"Text:"]];
+	}
+	
+	height;
+	CGSize maximumLabelSize1 = CGSizeMake(280,9999);
+	CGSize expectedLabelSize1 = [str sizeWithFont:[UIFont fontWithName:@"Helvetica" size:18] constrainedToSize:maximumLabelSize1 lineBreakMode:UILineBreakModeWordWrap];
+	height = expectedLabelSize1.height;	
+	
+	
+	sampleString = str;
+	
+	//[Ego_Textview resignFirstResponder];
+	
+	
+	[self TimeandDate];
+	 
+	 */
+}
+
+-(UIImage*) maskImage:(UIImage *)image withMask:(UIImage *)maskImage
+{
+	UIView	*MaskView=[[UIView alloc] init];
+	UIImageView *image1=[[UIImageView alloc]init];
+	UIImageView *image2=[[UIImageView alloc]init];
+	MaskView.frame=CGRectMake(0, 0,500,500);	
+	image1.frame=CGRectMake(0,0,160, 160);	
+	image2.frame=CGRectMake(60,54,40,40);
+	image1.image=image;
+	image2.image=maskImage;
+	[MaskView addSubview:image1];
+	[MaskView addSubview:image2];	
+	
+	UIGraphicsBeginImageContext(CGSizeMake(160,160));
+	
+	[MaskView.layer renderInContext:UIGraphicsGetCurrentContext()];
+	UIImage *finishedPic = UIGraphicsGetImageFromCurrentImageContext();	
+	//	Imagesaved=finishedPic;
+	//	[self saveQrCode:Imagesaved];
+	return finishedPic;
+	
+	
+}
+
+-(IBAction)GenerateQrCode
+{
+	char filename [ [[[FileManager sharedFileManager] qRFile] length] + 1];
+	[[[FileManager sharedFileManager] qRFile] getCString:filename maxLength:[[[FileManager sharedFileManager] qRFile] length] + 1 encoding:NSUTF8StringEncoding];
+	
+	
+	[self MainDescription];
+	
+	char str [[sampleString length] + 1];
+	[sampleString getCString:str maxLength:[sampleString length] + 1 encoding:NSUTF8StringEncoding];
+	
+	CQR_Encode encoder;
+	encoder.EncodeData(1, 0, true, -1, str);
+	
+	QRDrawPNG qrDrawPNG;
+	qrDrawPNG.draw(filename, 4, encoder.m_nSymbleSize, encoder.m_byModuleData, NULL);
+	
+	NSData *data = [[NSData alloc] initWithContentsOfFile:[[FileManager sharedFileManager] qRFile]];
+	UIImage *image = [UIImage imageWithData:data];
+	[data release];	
+	ImageQRCode.image=image;
+	UIImage *image12 = [UIImage imageNamed:@"QR_Code_M_Letter-80.png"];	
+	ImageQRCode.image=[self maskImage:ImageQRCode.image withMask:image12];
+	[self saveQrCode:ImageQRCode.image];
+	QRGenDetailViewController *obj_Detail = [[QRGenDetailViewController alloc] initWithNibName:@"QRGenDetailViewController" bundle:nil imageQr:ImageQRCode.image string:lblHeader.text Attribute:strattr index:height Date:dateLabel.text Time:TimeLabel.text];
+	[self.navigationController pushViewController:obj_Detail animated:true];
+	[obj_Detail release];
+	
+}
+
+- (BOOL)egoTextViewShouldBeginEditing:(EGOTextView *)textView {
+    return YES;
+}
+
+- (BOOL)egoTextViewShouldEndEditing:(EGOTextView *)textView {
+    return YES;
+}
+
+
+
+- (void)egoTextViewDidBeginEditing:(EGOTextView *)textView
+{
+	//lblPlaceholder.hidden = TRUE;
+//	if ([[[UIDevice currentDevice] systemVersion] floatValue] >= 3.2) {
+//			[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardDidShow:) name:UIKeyboardDidShowNotification object:nil];
+//		} else {
+//			[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
+//	}
+}
+
+- (void)egoTextViewDidChange:(EGOTextView *)textView
+{
+	
+	//strattr = [NSMutableAttributedString attributedStringWithString:textView.text];
+//	[strattr setTextAlignment:kCTJustifiedTextAlignment lineBreakMode:kCTLineBreakByWordWrapping range:[textView.text rangeOfString:textView.text]];
+//	
+//	
+//	if(appDel.fontdic)
+//	{
+//		[strattr setFont:[UIFont fontWithName:[appDel.fontdic valueForKey:@"fontName"] size:[[appDel.fontdic valueForKey:@"fontSize"] intValue]]];
+//		int color=[[appDel.fontdic valueForKey:@"fontColor"] intValue];
+//		if(color==101)
+//			[strattr setTextColor:[UIColor blackColor]];
+//		else if(color==102)
+//			[strattr setTextColor:[UIColor whiteColor]];
+//		else if(color==103)
+//			[strattr setTextColor:[UIColor grayColor]];
+//		else if(color==104)
+//			[strattr setTextColor:[UIColor yellowColor]];
+//		else if(color==105)  
+//			[strattr setTextColor:[UIColor colorWithRed:0 green:0.6 blue:0.8 alpha:1]];
+//		else if(color==106)
+//			[strattr setTextColor:[UIColor colorWithRed:0 green:0.4 blue:0 alpha:1]];
+//		else if(color==107)
+//			[strattr setTextColor:[UIColor redColor]];
+//		else if(color==108)
+//			[strattr setTextColor:[UIColor orangeColor]];
+//		
+//		
+//		if([[appDel.fontdic valueForKey:@"isBold"] isEqualToString:@"YES"])
+//			isBold=YES;
+//		else 
+//			isBold=NO;
+//		
+//		if([[appDel.fontdic valueForKey:@"isItalic"] isEqualToString:@"YES"])
+//			isItalic=YES;
+//		else 
+//			isItalic=NO;
+//		
+//		
+//		[strattr setFontFamily:[appDel.fontdic valueForKey:@"fontName"] size:[[appDel.fontdic valueForKey:@"fontSize"] intValue] bold:isBold italic:isItalic range:[textView.text rangeOfString:textView.text]];
+//		
+//		if([[appDel.fontdic valueForKey:@"isUnderline"] isEqualToString:@"YES"])
+//			[strattr setTextIsUnderlined:YES];
+//	
+//		
+//	}
+//	else 
+//	{				
+//		[strattr setFont:[UIFont fontWithName:@"Times New Roman" size:24]];
+//		[strattr setTextColor:[UIColor blackColor]];
+//		[strattr setFontFamily:@"Times New Roman" size:24 bold:NO italic:NO range:[textView.text rangeOfString:textView.text]];
+//	}	
+//	
+	
+	
+	lblPlaceholder.hidden = TRUE;
+
+	if([Ego_Textview.text length] > 0)
+	{
+		BtnEncode.enabled = TRUE;
+	}
+	else 
+	{
+		BtnEncode.enabled = FALSE;
+		lblPlaceholder.hidden = FALSE;
+	}
+	
+	
+	
+		
+	/*
+	NSLog(@"%@",textView.text);
+	 if([Ego_Textview.text length] >0)
+	{
+		NSString *code = [textView.text substringFromIndex: [textView.text length] - 1];
+		NSLog(@"%@",code);
+		
+		if ([code isEqualToString:@"\n"])
+		{
+			[textView resignFirstResponder];
+		}
+	}
+	 */
+}
+
+- (void)egoTextViewDidEndEditing:(EGOTextView *)textView 
+{
+	
+}
+
+
+-(void)saveQrCode:(UIImage *)image
+{
+	UIImage *newImage = ImageQRCode.image;
+	
+	NSDateFormatter* dateFormatter = [[NSDateFormatter alloc] init];
+	[dateFormatter setDateFormat:@"MM-dd-yyyy-HH-mm-ss"];
+	
+	NSString * date = [dateFormatter stringFromDate:[NSDate date]];
+	
+	NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+	NSString *documentsDirectory = [paths objectAtIndex:0];
+	NSString* path = [documentsDirectory stringByAppendingPathComponent: 
+					  [NSString stringWithFormat:@"qr%@.png",date] ];
+	NSData* data = UIImagePNGRepresentation(newImage);
+	[data writeToFile:path atomically:YES];
+	
+	[DAL insert_library_CreatedDate:dateLabel.text Image:[NSString stringWithFormat:@"qr%@.png",date] Category:@"Text" Description:Ego_Textview.text starting_Date:@"" Ending_Date:@"" Address:@"" Links:@"" Email:@"" Locations:@"" Message:@"" Department:@"" Job:@"" Suffix:@"" MiddleName:@"" LastName:@"" FirstName:@"" Prefix:@"" PhoneNo:@"" Subject:@"" Notes:@""];	
+	[[NSNotificationCenter defaultCenter] postNotificationName:@"ReloadData" object:nil];
+}	
+
+
+
+
+-(IBAction)BackToRoot
+{
+	[self.navigationController popViewControllerAnimated:TRUE];
+}
+
+-(void)fontandsizeselected:(NSString*) fontname:(int) size :(int) style :(int) alignment:(int) color:(int) fontIndex:(int) lastFontsize
+{
+	
+	if(appDel.fontdic)
+	{
+		[appDel.fontdic release];
+		appDel.fontdic=nil;
+	}
+	appDel.fontdic=[[NSMutableDictionary alloc] init];
+	
+	isBold=obj_Font.Bold;
+	isItalic=obj_Font.Italic;
+	isUnderline=obj_Font.Underline;
+	/*if(style==11)
+	 {
+	 isBold=NO;
+	 isItalic=NO;
+	 isUnderline=NO;
+	 }
+	 else if(style==12)
+	 {
+	 isBold=YES;
+	 isItalic=NO;
+	 isUnderline=NO;
+	 }
+	 else if(style==13)
+	 {
+	 isBold=YES;
+	 isItalic=YES;
+	 isUnderline=NO;
+	 }
+	 else if(style==14)
+	 {
+	 isBold=NO;
+	 isItalic=YES;
+	 isUnderline=NO;
+	 }
+	 else if(style==15)
+	 {
+	 isBold=NO;
+	 isItalic=NO;
+	 isUnderline=YES;
+	 }*/
+	if(isBold)
+		[appDel.fontdic setObject:@"YES" forKey:@"isBold"];
+	else 
+		[appDel.fontdic setObject:@"NO" forKey:@"isBold"];
+	
+	if(isItalic)
+		[appDel.fontdic setObject:@"YES" forKey:@"isItalic"];
+	else 
+		[appDel.fontdic setObject:@"NO" forKey:@"isItalic"];
+	
+	if(isUnderline)
+		[appDel.fontdic setObject:@"YES" forKey:@"isUnderline"];
+	else 
+		[appDel.fontdic setObject:@"NO" forKey:@"isUnderline"];
+	
+	
+	[appDel.fontdic setObject:fontname forKey:@"fontName"];
+	[appDel.fontdic setObject:[NSString stringWithFormat:@"%d",size] forKey:@"fontSize"];
+	[appDel.fontdic setObject:[NSString stringWithFormat:@"%d",fontIndex] forKey:@"lastFont"];
+	[appDel.fontdic setObject:[NSString stringWithFormat:@"%d",color] forKey:@"fontColor"];
+	[appDel.fontdic setObject:[NSString stringWithFormat:@"%d",alignment] forKey:@"fontAlign"];
+	[appDel.fontdic setObject:[NSString stringWithFormat:@"%d",style] forKey:@"styleIndex"];
+	[appDel.fontdic setObject:[NSString stringWithFormat:@"%d",size] forKey:@"lastSize"];
+	
+	
+	NSMutableAttributedString* attrStr = [NSMutableAttributedString attributedStringWithString:Ego_Textview.text];
+	
+	[attrStr setFont:[UIFont fontWithName:fontname size:size]];
+	
+	int color1=[[appDel.fontdic valueForKey:@"fontColor"] intValue];
+	if(color1==101)
+		[attrStr setTextColor:[UIColor blackColor]];
+	else if(color1==102)
+		[attrStr setTextColor:[UIColor whiteColor]];
+	else if(color1==103)
+		[attrStr setTextColor:[UIColor grayColor]];
+	else if(color1==104)
+		[attrStr setTextColor:[UIColor yellowColor]];
+	else if(color1==105)  
+		[attrStr setTextColor:[UIColor colorWithRed:0 green:0.6 blue:0.8 alpha:1]];
+	else if(color1==106)
+		[attrStr setTextColor:[UIColor colorWithRed:0 green:0.4 blue:0 alpha:1]];
+	else if(color1==107)
+		[attrStr setTextColor:[UIColor redColor]];
+	else if(color1==108)
+		[attrStr setTextColor:[UIColor orangeColor]];
+	
+	[attrStr setFontFamily:fontname size:size bold:isBold italic:isItalic range:[Ego_Textview.text rangeOfString:Ego_Textview.text]];
+	
+	if(isUnderline)
+		[attrStr setTextIsUnderlined:YES];
+	
+	// -(void)setFontFamily:(NSString*)fontFamily size:(CGFloat)size bold:(BOOL)isBold italic:(BOOL)isItalic range:(NSRange)range {
+	//-(void)setTextAlignment:(CTTextAlignment)alignment lineBreakMode:(CTLineBreakMode)lineBreakMode
+	//[attrStr setTextAlignment:UITextAlignmentLeft lineBreakMode:UILineBreakModeCharacterWrap];
+	
+	/*[Ego_Textview setLineBreakMode:UILineBreakModeCharacterWrap];
+	 [Ego_Textview setNumberOfLines:9999];*/
+	
+	
+	if(alignment==21)	
+		[attrStr setTextAlignment:kCTLeftTextAlignment lineBreakMode:kCTLineBreakByWordWrapping range:[Ego_Textview.text rangeOfString:Ego_Textview.text]];
+	//		//Ego_Textview.textAlignment=UITextAlignmentLeft;
+	else if(alignment==22)
+		[attrStr setTextAlignment:kCTCenterTextAlignment lineBreakMode:kCTLineBreakByWordWrapping range:[Ego_Textview.text rangeOfString:Ego_Textview.text]];
+	//	//	Ego_Textview.textAlignment=UITextAlignmentCenter;
+	else if(alignment==23)
+		[attrStr setTextAlignment:kCTRightTextAlignment lineBreakMode:kCTLineBreakByWordWrapping range:[Ego_Textview.text rangeOfString:Ego_Textview.text]];
+	//	//	Ego_Textview.textAlignment=UITextAlignmentRight;
+	else if(alignment==24)
+		[attrStr setTextAlignment:kCTJustifiedTextAlignment lineBreakMode:kCTLineBreakByWordWrapping range:[Ego_Textview.text rangeOfString:Ego_Textview.text]];
+	//	//	Ego_Textview.textAlignment=UITextAlignmentJustify;
+	else 
+		[attrStr setTextAlignment:kCTJustifiedTextAlignment lineBreakMode:kCTLineBreakByWordWrapping range:[Ego_Textview.text rangeOfString:Ego_Textview.text]];
+	//	//	Ego_Textview.textAlignment=UITextAlignmentJustify;
+	
+	[Ego_Textview reloadText:Ego_Textview.attributedString.string];
+	
+}
+
+
+
+- (void)didReceiveMemoryWarning {
+    // Releases the view if it doesn't have a superview.
+    [super didReceiveMemoryWarning];
+    
+    // Release any cached data, images, etc. that aren't in use.
+}
+
+- (void)viewDidUnload {
+    [super viewDidUnload];
+    // Release any retained subviews of the main view.
+    // e.g. self.myOutlet = nil;
+}
+
+
+- (void)dealloc {
+    [super dealloc];
+}
+
+
+@end

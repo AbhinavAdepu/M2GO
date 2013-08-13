@@ -1,0 +1,135 @@
+//
+//  ViewController.m
+//  color palette
+//
+//  Created by Silver Touch on 13/12/11.
+//  Copyright (c) 2011 __MyCompanyName__. All rights reserved.
+//
+
+#import "ViewController.h"
+
+@implementation ViewController
+
+@synthesize colorBtn1, colorBtn2, colorBtn3, colorBtn4, colorBtn5, colorBtn6, colorBtn7, colorBtn8, colorBtn9, colorBtn10;
+@synthesize Colordelegate;
+
+- (void)didReceiveMemoryWarning
+{
+    [super didReceiveMemoryWarning];
+    // Release any cached data, images, etc that aren't in use.
+}
+
+#pragma mark - View lifecycle
+
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+	appDel = (KrenMarketingAppDelegate *)[[UIApplication sharedApplication] delegate];
+	UIBarButtonItem* cancel=[[UIBarButtonItem alloc] initWithTitle:@"Cancel" style:UIBarButtonItemStyleBordered target:self action:@selector(cancelClicked:)];
+	self.navigationItem.leftBarButtonItem=cancel;
+	
+	UIBarButtonItem* done=[[UIBarButtonItem alloc] initWithTitle:@"Done" style:UIBarButtonItemStyleBordered target:self action:@selector(DoneClicked:)];
+	self.navigationItem.rightBarButtonItem=done;
+	// Do any additional setup after loading the view, typically from a nib.
+}
+-(void) cancelClicked:(id) sender
+{
+	[Colordelegate dismissdatePopOver];
+}
+
+- (void)viewDidUnload
+{
+    [super viewDidUnload];
+    // Release any retained subviews of the main view.
+    // e.g. self.myOutlet = nil;
+}
+
+- (void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+}
+
+- (void)viewDidAppear:(BOOL)animated
+{
+    [super viewDidAppear:animated];
+}
+
+- (void)viewWillDisappear:(BOOL)animated
+{
+	[super viewWillDisappear:animated];
+}
+
+- (void)viewDidDisappear:(BOOL)animated
+{
+	[super viewDidDisappear:animated];
+}
+
+
+-(IBAction) colorBtnClicked:(id)sender{
+	
+    UIButton *temp = (UIButton*)sender;
+	UIColor *bgColor= temp.backgroundColor;
+	appDel.bgTempColor = bgColor;
+	NSLog(@"color==%@",bgColor);
+	
+    switch (temp.tag) {
+        case 1:
+            
+            break;
+        case 2:
+            
+            break;
+        case 3:
+            
+            break;
+        case 4:
+            
+            break;
+        case 5:
+            
+            break;
+        case 6:
+            
+            break;
+        case 7:
+            
+            break;
+        case 8:
+            
+            break;
+        case 9:
+            
+            break;
+        case 10:
+            
+            break;
+        default:
+            break;
+    }
+	
+	
+	
+	
+}
+
+-(void)DoneClicked:(id) sender
+{
+	[[NSNotificationCenter defaultCenter] postNotificationName:@"bg_ChangeTempColor" object:nil];
+	[Colordelegate dismissdatePopOver];
+}
+
+
+
+
+
+- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
+{
+    // Return YES for supported orientations
+    if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone) {
+        return (interfaceOrientation != UIInterfaceOrientationPortraitUpsideDown);
+    } else {
+        return YES;
+    }
+}
+
+@end

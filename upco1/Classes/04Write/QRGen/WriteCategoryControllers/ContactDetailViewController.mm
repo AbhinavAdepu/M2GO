@@ -1,0 +1,922 @@
+//
+//  ContactDetailViewController.m
+//  KrenMarketing
+//
+//  Created by Jayna Gandhi on 05/03/12.
+//  Copyright 2012 __MyCompanyName__. All rights reserved.
+//
+
+#import "ContactDetailViewController.h"
+#import "QRGenDetailViewController.h"
+#import "FileManager.h"
+#import "qr_draw_png.h"
+#import "QR_Encode.h"
+#import "DAL.h"
+//#define NUMBERS @" +-(){}1234567890"
+#define NUMBERS @" ()-1234567890"
+@implementation ContactDetailViewController
+
+// The designated initializer.  Override if you create the controller programmatically and want to perform customization that is not appropriate for viewDidLoad.
+
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil 
+{
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self) {
+        // Custom initialization.
+    }
+    return self;
+}
+
+
+
+// Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
+- (void)viewDidLoad 
+{
+    [super viewDidLoad];
+	
+	prevvalue=20;
+	//ResultString=[[NSString alloc] init];
+	activetxt = [[UITextField alloc]init];
+	activetxtview=[[UITextView alloc]init];
+	arrLocal = [[NSMutableArray alloc]init];
+	ctr = 1;
+	
+	scrollView = [[UIScrollView alloc] init];	
+	
+	scrollView.userInteractionEnabled = TRUE;
+	scrollView.delegate = self;
+	scrollView.scrollEnabled = TRUE;
+	scrollView.backgroundColor = [UIColor clearColor];    
+    //scrollView.scrollsToTop = YES;
+    scrollView.autoresizingMask=UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    //scrollView.alwaysBounceVertical = TRUE; 
+    [scrollView setFrame:CGRectMake(0,100,320,240)];
+    
+	
+	
+	
+	AddButton = [[NSMutableArray alloc]init];
+	arrField=[[NSMutableArray alloc] init];
+	OtherButton=[[NSMutableArray alloc] init];
+	[self.view addSubview:scrollView];
+	
+    
+    NSMutableDictionary* dic;
+    dic=[[NSMutableDictionary alloc] init];
+    [dic setObject:@"yes" forKey:@"isactive"];
+    [dic setObject:@"Name" forKey:@"placeholder"];
+    [dic setObject:@"" forKey:@"value"];
+    [arrField addObject:dic];
+    [dic release];
+    
+    dic=[[NSMutableDictionary alloc] init];
+    [dic setObject:@"yes" forKey:@"isactive"];
+    [dic setObject:@"Phone Number" forKey:@"placeholder"];
+    [dic setObject:@"" forKey:@"value"];
+    [arrField addObject:dic];
+    [dic release];
+    
+    dic=[[NSMutableDictionary alloc] init];
+    [dic setObject:@"no" forKey:@"isactive"];
+    [dic setObject:@"Prefix" forKey:@"placeholder"];
+    [dic setObject:@"" forKey:@"value"];
+    [arrField addObject:dic];
+    [dic release];
+	
+    dic=[[NSMutableDictionary alloc] init];
+    [dic setObject:@"no" forKey:@"isactive"];
+    [dic setObject:@"Phonetic First Name" forKey:@"placeholder"];
+    [dic setObject:@"" forKey:@"value"];
+    [arrField addObject:dic];
+    [dic release];
+	
+    dic=[[NSMutableDictionary alloc] init];
+    [dic setObject:@"no" forKey:@"isactive"];
+    [dic setObject:@"Phonetic Last Name" forKey:@"placeholder"];
+    [dic setObject:@"" forKey:@"value"];
+    [arrField addObject:dic];
+    [dic release];
+	
+    dic=[[NSMutableDictionary alloc] init];
+    [dic setObject:@"no" forKey:@"isactive"];
+    [dic setObject:@"Middle" forKey:@"placeholder"];
+    [dic setObject:@"" forKey:@"value"];
+    [arrField addObject:dic];
+    [dic release];
+	
+    dic=[[NSMutableDictionary alloc] init];
+    [dic setObject:@"no" forKey:@"isactive"];
+    [dic setObject:@"Suffix" forKey:@"placeholder"];
+    [dic setObject:@"" forKey:@"value"];
+    [arrField addObject:dic];
+    [dic release];
+	
+    dic=[[NSMutableDictionary alloc] init];
+    [dic setObject:@"no" forKey:@"isactive"];
+    [dic setObject:@"Job Title" forKey:@"placeholder"];
+    [dic setObject:@"" forKey:@"value"];
+    [arrField addObject:dic];
+    [dic release];
+	
+    dic=[[NSMutableDictionary alloc] init];
+    [dic setObject:@"no" forKey:@"isactive"];
+    [dic setObject:@"Department" forKey:@"placeholder"];
+    [dic setObject:@"" forKey:@"value"];
+    [arrField addObject:dic];
+    [dic release];	
+	
+	[self reloadUI];
+}
+
+-(IBAction)BackToRoot
+{
+	[self.navigationController popViewControllerAnimated:TRUE];
+}
+
+-(IBAction)openPresentController
+{
+	
+}
+
+
+#pragma mark ReloadUI
+-(void)reloadUI
+{
+    ctr=1;
+    for(int i=0;i<[OtherButton count];i++)
+    {
+        [[OtherButton objectAtIndex:i] removeFromSuperview];
+    }
+	if([arrLocal count]>0)
+		[arrLocal removeAllObjects];
+    height=0;
+    int j=0;
+	if(prevvalue<[arrField count])
+		[[arrField objectAtIndex:prevvalue]setObject:@"" forKey:@"value"];	
+    for (int i=0; i<[arrField count]; i++)
+    {        
+        if ([[[arrField objectAtIndex:i] valueForKey:@"isactive"] isEqualToString:@"yes"]) 
+        {          
+            btnName = [UIButton buttonWithType:UIButtonTypeCustom];
+            [btnName setFrame:CGRectMake(13, (scrollView.frame.origin.y-50)*j, scrollView.frame.size.width-29, 38)];
+			[btnName setBackgroundImage:[UIImage imageNamed:@"textboxImage-URL.png"] forState:UIControlStateNormal];
+            btnName.userInteractionEnabled =YES;
+			btnName.clipsToBounds =YES;
+			btnName.adjustsImageWhenHighlighted = NO;
+			btnName.autoresizingMask=UIViewAutoresizingFlexibleWidth;			
+			btnName.backgroundColor=[UIColor clearColor];
+			UITextField *txtFieldPlaceholder = [[UITextField alloc]init];
+		    txtFieldPlaceholder.delegate = self;
+			txtFieldPlaceholder.textAlignment = UITextAlignmentLeft;
+            txtFieldPlaceholder.borderStyle = UITextBorderStyleNone;
+            txtFieldPlaceholder.keyboardType = UIKeyboardTypeAlphabet;
+			txtFieldPlaceholder.autocapitalizationType = UITextAutocapitalizationTypeWords;
+			txtFieldPlaceholder.font = [UIFont fontWithName:@"Helvetica" size:16];
+            txtFieldPlaceholder.returnKeyType = UIReturnKeyDone;
+			//txtFieldPlaceholder.backgroundColor=[UIColor greenColor];
+			txtFieldPlaceholder.frame = CGRectMake(10,9,btnName.frame.size.width-50, 38);
+			txtFieldPlaceholder.autoresizingMask=UIViewAutoresizingFlexibleWidth;
+            if ( [[[arrField objectAtIndex:i] valueForKey:@"value"] length] >0) {
+                txtFieldPlaceholder.text =[[arrField objectAtIndex:i] valueForKey:@"value"];				
+            }else            
+				txtFieldPlaceholder.placeholder = [[arrField objectAtIndex:i] valueForKey:@"placeholder"];
+			
+            
+			txtFieldPlaceholder.tag = i;
+			NSLog(@"tag==>%d",i);
+			if([[[arrField objectAtIndex:i] valueForKey:@"placeholder"] isEqualToString:@"Phone Number"])
+				txtFieldPlaceholder.keyboardType=UIKeyboardTypeNumbersAndPunctuation;
+            
+            if(i>1)
+			{
+				NSLog(@"btnframe==>%f",scrollView.frame.size.width);
+				UIButton *btnDelete = [UIButton buttonWithType:UIButtonTypeCustom];
+				[btnDelete setBackgroundImage:[UIImage imageNamed:@"minus_button.png"] forState:UIControlStateNormal];
+				btnDelete.frame = CGRectMake(btnName.frame.size.width-40,3, 34, 34);
+				btnDelete.autoresizingMask=UIViewAutoresizingFlexibleWidth;
+				btnDelete.tag=i;
+				NSLog(@"===>%d",btnDelete.tag);
+				[btnDelete addTarget:self action:@selector(DeleteRow:)
+					forControlEvents:UIControlEventTouchDown];				
+				[btnName addSubview:btnDelete];
+			}
+			
+            [btnName addSubview:txtFieldPlaceholder];			
+            [scrollView addSubview:btnName];
+			[OtherButton addObject:btnName];
+            height=height+scrollView.frame.origin.y-50;
+            j++;
+			[arrLocal addObject:txtFieldPlaceholder];
+        }
+    }	
+    scrollView.contentSize=CGSizeMake(0, height+150);
+	
+	// 
+	[self imageDraw];
+	
+}
+
+-(void)DeleteRow:(id) sender
+{	
+	NSString *str;
+	str=@"";	
+	UIButton* b=(UIButton*) sender;
+	prevvalue=b.tag;
+	NSLog(@"===>%d",b.tag);
+	[[arrField objectAtIndex:b.tag]setObject:@"no" forKey:@"isactive"];	
+	
+	[self reloadUI];
+	
+}
+
+-(void)MainDescription
+{
+	[activetxt resignFirstResponder];
+	NSString *Value;
+	NSString   *showValue;
+    NSString *showValue1;
+	showValue1=[[NSString alloc]init];
+    showValue1=@"";
+    
+    NSString *totname=[[NSString alloc]init];
+    totname=@"";
+
+    
+	showValue=[[NSString alloc]init];
+	NSString *str=@"";
+    BOOL nameok=NO;
+	for (int i=0; i<[arrField count]; i++)
+	{		
+		if ([[[arrField objectAtIndex:i] valueForKey:@"isactive"] isEqualToString:@"yes"]) 
+		{
+			if (![[[arrField objectAtIndex:i] valueForKey:@"value"] isEqualToString:@""]) {
+				Value = [[arrField objectAtIndex:i] valueForKey:@"value"] ;
+				NSLog(@"%@",Value);
+			//	showValue = [showValue stringByAppendingFormat:@"%@ : %@",[[arrField objectAtIndex:i] valueForKey:@"placeholder"] ,Value];
+			//	showValue = [showValue stringByAppendingFormat:@";"];
+				//NSLog(@"showvalue%@",showValue);	
+                if([[arrField objectAtIndex:i] valueForKey:@"placeholder"]==@"Name")
+                {
+                    str= [str stringByAppendingFormat:@"%@:%@",[[arrField objectAtIndex:i] valueForKey:@"placeholder"] ,Value];
+                    str = [str stringByAppendingFormat:@"\n"];
+                }
+                else {
+                    str= [str stringByAppendingFormat:@"%@: %@",[[arrField objectAtIndex:i] valueForKey:@"placeholder"] ,Value];
+                    str = [str stringByAppendingFormat:@"\n"];
+                }
+				
+                
+                if([[arrField objectAtIndex:i] valueForKey:@"placeholder"]==@"Name" && [[[arrField objectAtIndex:i] valueForKey:@"value"] length]>0)
+                {
+                    nameok=YES;
+                }
+                
+                
+                if([[arrField objectAtIndex:i] valueForKey:@"placeholder"]==@"Phone Number" && [[[arrField objectAtIndex:i] valueForKey:@"value"] length]>0)
+                {
+                    NSString *tmpstr=Value;
+                    BOOL isValid=NO;
+                    BOOL isValid1=NO;
+                
+                    if([tmpstr rangeOfString:@"("].location!=NSNotFound || [tmpstr rangeOfString:@")"].location!=NSNotFound || [tmpstr rangeOfString:@"-"].location!=NSNotFound || [tmpstr rangeOfString:@" "].location!=NSNotFound)
+                    {
+                        
+                        if([tmpstr length]==14)
+                        {
+                            NSString *phoneRegex = @"\\([0-9]{3}\\)+ +[0-9]{3}\\-[0-9]{4}";
+                            NSPredicate *phoneTest = [NSPredicate predicateWithFormat:@"SELF MATCHES %@", phoneRegex];
+                            isValid = [phoneTest evaluateWithObject:tmpstr];
+                            
+                            
+                            tmpstr=[tmpstr stringByReplacingOccurrencesOfString:@"(" withString:@""];
+                            tmpstr=[tmpstr stringByReplacingOccurrencesOfString:@")" withString:@""];
+                            tmpstr=[tmpstr stringByReplacingOccurrencesOfString:@" " withString:@""];
+                            tmpstr=[tmpstr stringByReplacingOccurrencesOfString:@"-" withString:@""];
+                        }
+                        
+                        
+                    }
+                    else {
+                        if([tmpstr length]==10)
+                        {
+                            
+                            isValid1=YES;
+                        }
+                    }
+                    if(isValid || isValid1)
+                    {
+                        flagsave=YES;
+                        Value=tmpstr;
+                    }
+                    
+                    if((isValid || isValid1) && nameok)
+                    {
+                        flagcon=YES;
+                    }
+
+                }
+                
+                //standradising formats.
+                if([[[arrField objectAtIndex:i] valueForKey:@"placeholder"] isEqualToString:@"Name"])
+                {
+                    showValue1 = [showValue1 stringByAppendingFormat:@"FN:%@",Value];
+                    showValue1 = [showValue1 stringByAppendingFormat:@"\n"];
+                }
+                if([[[arrField objectAtIndex:i] valueForKey:@"placeholder"] isEqualToString:@"Phone Number"])
+                {
+                    showValue1 = [showValue1 stringByAppendingFormat:@"TEL:%@",Value];
+                    showValue1 = [showValue1 stringByAppendingFormat:@"\n"];
+                    
+                    
+                }
+                
+                if([[[arrField objectAtIndex:i] valueForKey:@"placeholder"] isEqualToString:@"Prefix"])
+                {
+                    totname = [totname stringByAppendingFormat:@"%@ ",Value];
+                    
+                }
+                if([[[arrField objectAtIndex:i] valueForKey:@"placeholder"] isEqualToString:@"Phonetic First Name"])
+                {
+                    totname = [totname stringByAppendingFormat:@"%@ ",Value];
+                    
+                    
+                }
+                if([[[arrField objectAtIndex:i] valueForKey:@"placeholder"] isEqualToString:@"Middle"])
+                {
+                    totname = [totname stringByAppendingFormat:@"%@ ",Value];
+                    
+                    
+                }
+                if([[[arrField objectAtIndex:i] valueForKey:@"placeholder"] isEqualToString:@"Phonetic Last Name"])
+                {
+                    totname = [totname stringByAppendingFormat:@"%@ ",Value];
+                    
+                    
+                }
+                if([[[arrField objectAtIndex:i] valueForKey:@"placeholder"] isEqualToString:@"Suffix"])
+                {
+                    totname = [totname stringByAppendingFormat:@"%@",Value];
+                    
+                    
+                }
+                
+                
+                
+                
+                
+                
+                if([[[arrField objectAtIndex:i] valueForKey:@"placeholder"] isEqualToString:@"Job Title"])
+                {
+                    showValue1 = [showValue1 stringByAppendingFormat:@"TITLE:%@",Value];
+                    showValue1 = [showValue1 stringByAppendingFormat:@"\n"];
+                    
+                }
+                if([[[arrField objectAtIndex:i] valueForKey:@"placeholder"] isEqualToString:@"Department"])
+                {
+                    showValue1 = [showValue1 stringByAppendingFormat:@"ORG:%@",Value];
+                    showValue1 = [showValue1 stringByAppendingFormat:@"\n"];
+                    
+                }
+                
+
+                
+			}					
+		}				
+	}
+    if([totname length]>0)
+    showValue1 = [showValue1 stringByAppendingFormat:@"N:%@",totname];
+    showValue1 = [showValue1 stringByAppendingFormat:@"\n"];
+    
+    sampleString = [NSString stringWithString:@"BEGIN:VCARD"];
+      sampleString = [sampleString stringByAppendingFormat:@"\n"];
+ sampleString = [sampleString stringByAppendingFormat:showValue1];
+//	sampleString=str;
+	
+    sampleString = [sampleString stringByAppendingFormat:@"END:VCARD"];
+	
+	
+	strattr = [NSMutableAttributedString attributedStringWithString:str];
+	[strattr setTextColor:[UIColor blackColor]];
+	[strattr setFontFamily:@"Helvetica" size:18 bold:NO italic:NO range:[str rangeOfString:str]];
+	
+	for (int i=0; i<[arrField count]; i++)
+	{		
+		if ([[[arrField objectAtIndex:i] valueForKey:@"isactive"] isEqualToString:@"yes"]) 
+		{
+			if (![[[arrField objectAtIndex:i] valueForKey:@"value"] isEqualToString:@""]) {
+				[strattr setTextBold:YES range:[str rangeOfString:[[arrField objectAtIndex:i] valueForKey:@"placeholder"]]];
+			}
+		}
+	}
+	
+	
+	CGSize maximumLabelSize1 = CGSizeMake(291,9999);
+	CGSize expectedLabelSize1 = [str sizeWithFont:[UIFont fontWithName:@"Helvetica" size:18] constrainedToSize:maximumLabelSize1 lineBreakMode:UILineBreakModeWordWrap];
+	height1 = expectedLabelSize1.height;
+	
+	/*[activetxt resignFirstResponder];
+	NSString *Value;
+	NSString   *showValue;
+	showValue=[[NSString alloc]init];
+	NSString *str=@"";
+	for (int i=0; i<[arrField count]; i++)
+	{		
+		if ([[[arrField objectAtIndex:i] valueForKey:@"isactive"] isEqualToString:@"yes"]) 
+		{
+			if (![[[arrField objectAtIndex:i] valueForKey:@"value"] isEqualToString:@""]) {
+				Value = [[arrField objectAtIndex:i] valueForKey:@"value"] ;
+				
+				showValue = [showValue stringByAppendingFormat:@" %@: %@",[[arrField objectAtIndex:i] valueForKey:@"placeholder"] ,Value];
+				showValue = [showValue stringByAppendingFormat:@";"];
+				//NSLog(@"showvalue%@",showValue);	
+				str= [str stringByAppendingFormat:@" %@: %@",[[arrField objectAtIndex:i] valueForKey:@"placeholder"] ,Value];
+				str = [str stringByAppendingFormat:@"\n"];
+			}					
+		}				
+	}
+
+	
+	strattr = [NSMutableAttributedString attributedStringWithString:str];
+	[strattr setFont:[UIFont fontWithName:@"Helvetica" size:20]];
+	[strattr setTextColor:[UIColor blackColor]];
+	
+	for (int i=0; i<[arrField count]; i++)
+	{		
+		if ([[[arrField objectAtIndex:i] valueForKey:@"isactive"] isEqualToString:@"yes"]) 
+		{
+			if (![[[arrField objectAtIndex:i] valueForKey:@"value"] isEqualToString:@""]) {
+				[strattr setTextBold:YES range:[str rangeOfString:[[arrField objectAtIndex:i] valueForKey:@"placeholder"]]];
+			}
+		}
+	}
+	
+	height1;
+	CGSize maximumLabelSize1 = CGSizeMake(280,9999);
+	CGSize expectedLabelSize1 = [showValue sizeWithFont:[UIFont fontWithName:@"Helvetica" size:18] constrainedToSize:maximumLabelSize1 lineBreakMode:UILineBreakModeWordWrap];
+	height1 = expectedLabelSize1.height;
+	
+	sampleString=str;
+	//sampleString=[sampleString stringByReplacingOccurrencesOfString:@";" withString:@"\n"];
+	
+	
+	*/
+	[self TimeandDate];
+}
+
+-(void)TimeandDate
+{
+	NSDate* date = [NSDate date];
+	NSDateFormatter *Date1=[[[NSDateFormatter alloc] init] autorelease];
+	NSDateFormatter *Time1=[[[NSDateFormatter alloc] init] autorelease];
+	[Date1 setDateFormat:@"E MM/dd/yy"];
+	[Time1 setDateFormat:@"h:MM aa"];
+	
+	
+	NSString *Date12=[Date1 stringFromDate:date];
+	NSString *Time12=[Time1 stringFromDate:date];	
+	
+	dateLabel= [[[UILabel alloc]init]autorelease];
+	TimeLabel= [[[UILabel alloc]init]autorelease];
+	dateLabel.text = [NSString stringWithFormat:@"Created and Added to Library on %@",Date12];
+	[TimeLabel setText:Time12];
+}
+
+#pragma mark GenerateCode
+/*
+-(void)GenerateCode:(id)sender
+{
+    NSString *Value;
+    NSString   *showValue;
+	//[activetxt resignFirstResponder];
+    showValue=[[NSString alloc]init];
+    for (int i=0; i<[arrField count]; i++)
+    {
+        
+        if ([[[arrField objectAtIndex:i] valueForKey:@"isactive"] isEqualToString:@"yes"]) 
+        {
+            if (![[[arrField objectAtIndex:i] valueForKey:@"value"] isEqualToString:@""]) {
+                Value = [[arrField objectAtIndex:i] valueForKey:@"value"] ;
+                showValue = [showValue stringByAppendingFormat:@" ,%@", Value];
+				 NSLog(@"%@",showValue);
+				
+                
+            }
+            
+        }
+		
+    }
+    
+}
+*/
+-(IBAction)GenerateQrCode
+{
+	flagcon=NO;
+	flagsave=NO;
+	
+	char filename [ [[[FileManager sharedFileManager] qRFile] length] + 1];
+	[[[FileManager sharedFileManager] qRFile] getCString:filename maxLength:[[[FileManager sharedFileManager] qRFile] length] + 1 encoding:NSUTF8StringEncoding];
+	
+	[self MainDescription];
+	
+	if(flagsave)
+    {
+	char str [[sampleString length] + 1];
+	[sampleString getCString:str maxLength:[sampleString length] + 1 encoding:NSUTF8StringEncoding];
+	
+	CQR_Encode encoder;
+	encoder.EncodeData(1, 0, true, -1, str);
+	
+	QRDrawPNG qrDrawPNG;
+	qrDrawPNG.draw(filename, 4, encoder.m_nSymbleSize, encoder.m_byModuleData, NULL);
+	
+	NSData *data = [[NSData alloc] initWithContentsOfFile:[[FileManager sharedFileManager] qRFile]];
+	UIImage *image = [UIImage imageWithData:data];
+	[data release];	
+	ImageQRCode.image=image;
+	UIImage *image12 = [UIImage imageNamed:@"QR_Code_M_Letter-80.png"];	
+	ImageQRCode.image=[self maskImage:ImageQRCode.image withMask:image12];
+	
+	
+	[self saveQrCode:ImageQRCode.image];
+	NSLog(@"lblHeader string:%@",lblHeader.text);
+	QRGenDetailViewController *obj_Detail = [[QRGenDetailViewController alloc] initWithNibName:@"QRGenDetailViewController" bundle:nil imageQr:ImageQRCode.image string:lblHeader.text Attribute:strattr index:height1 Date:dateLabel.text Time:TimeLabel.text];
+	[self.navigationController pushViewController:obj_Detail animated:true];
+	[obj_Detail release];
+    }
+    else {
+        flagcon=NO;
+        UIAlertView* alert=[[UIAlertView alloc] initWithTitle:@"Alert" message:@"Please enter a valid Phone Number" delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil];
+        [alert show];
+        [alert release];
+
+    }
+	
+}
+-(UIImage*) maskImage:(UIImage *)image withMask:(UIImage *)maskImage
+{
+	UIView	*MaskView=[[UIView alloc] init];
+	UIImageView *image1=[[UIImageView alloc]init];
+	UIImageView *image2=[[UIImageView alloc]init];
+	MaskView.frame=CGRectMake(0, 0,500,500);	
+	image1.frame=CGRectMake(0,0,160, 160);	
+	image2.frame=CGRectMake(60,54,40,40);
+	image1.image=image;
+	image2.image=maskImage;
+	[MaskView addSubview:image1];
+	[MaskView addSubview:image2];	
+	
+	UIGraphicsBeginImageContext(CGSizeMake(160,160));
+	
+	[MaskView.layer renderInContext:UIGraphicsGetCurrentContext()];
+	UIImage *finishedPic = UIGraphicsGetImageFromCurrentImageContext();	
+	//	Imagesaved=finishedPic;
+	//	[self saveQrCode:Imagesaved];
+	return finishedPic;
+	
+	
+}
+-(void)saveQrCode:(UIImage *)image
+{
+	
+	//NSString *sql = [NSString stringWithFormat:@"select *from library"];
+	//NSMutableArray *array=[DAL ExecuteArraySet:sql];
+	
+	UIImage *newImage = ImageQRCode.image;
+	
+	NSDateFormatter* dateFormatter = [[NSDateFormatter alloc] init];
+	[dateFormatter setDateFormat:@"MM-dd-yyyy-HH-mm-ss"];
+	
+	NSString * date = [dateFormatter stringFromDate:[NSDate date]];
+	
+	NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+	NSString *documentsDirectory = [paths objectAtIndex:0];
+	NSString* path = [documentsDirectory stringByAppendingPathComponent: 
+					  [NSString stringWithFormat:@"qr%@.png",date] ];
+	NSData* data = UIImagePNGRepresentation(newImage);
+	[data writeToFile:path atomically:YES];
+	
+	
+	[DAL insert_library_CreatedDate:dateLabel.text 
+							  Image:[NSString stringWithFormat:@"qr%@.png",date] 
+						   Category:@"Contact" 
+						Description:[[arrField objectAtIndex:0] valueForKey:@"value"]
+					  starting_Date:@"" 
+						Ending_Date:@"" 
+							Address:@"" 
+							  Links:@"" 
+							  Email:@"" 
+						  Locations:@"" 
+							Message:@"" 
+						 Department:[[arrField objectAtIndex:8] valueForKey:@"value"]
+								Job:[[arrField objectAtIndex:7] valueForKey:@"value"] 
+							 Suffix:[[arrField objectAtIndex:6] valueForKey:@"value"] 
+						 MiddleName:[[arrField objectAtIndex:5] valueForKey:@"value"] 
+						   LastName:[[arrField objectAtIndex:4] valueForKey:@"value"] 
+						  FirstName:[[arrField objectAtIndex:3] valueForKey:@"value"] 
+							 Prefix:[[arrField objectAtIndex:2] valueForKey:@"value"] 
+							PhoneNo:[[arrField objectAtIndex:1] valueForKey:@"value"]
+							Subject:@"" 
+							  Notes:@""];	
+	
+	[[NSNotificationCenter defaultCenter] postNotificationName:@"ReloadData" object:nil];
+}	
+-(void)imageDraw
+{
+	
+    for(int j=0;j<[AddButton count];j++)
+	{		
+		[[AddButton objectAtIndex:j] removeFromSuperview];
+    }
+	
+    addbtn = [UIButton buttonWithType:UIButtonTypeCustom];
+    [addbtn setFrame:CGRectMake(10, (height)-1, 42, 42)];
+    addbtn.backgroundColor = [UIColor clearColor];
+    addbtn.userInteractionEnabled =YES;
+    
+    UIImage *img = [UIImage imageNamed:@"ADDFields_iphone.png"];
+    //    btnAdd.tag = k;
+    [addbtn addTarget:self action:@selector(Add:) forControlEvents:UIControlEventTouchUpInside];
+    [addbtn setBackgroundImage:img forState:UIControlStateNormal];
+    [scrollView addSubview:addbtn];
+    
+    UIButton *Otherbtn = [UIButton buttonWithType:UIButtonTypeCustom];
+	[Otherbtn setFrame:CGRectMake(54, (height+2),scrollView.frame.size.width-70, 38)];
+    Otherbtn.backgroundColor = [UIColor clearColor];
+	[Otherbtn setBackgroundImage:[UIImage imageNamed:@"textboxImage-URL.png"] forState:UIControlStateNormal];
+    Otherbtn.userInteractionEnabled =NO;
+    [scrollView addSubview:Otherbtn];
+	
+    UITextField *txtField = [[UITextField alloc]init];
+    txtField.delegate = self;
+    txtField.textAlignment = UITextAlignmentLeft;
+    txtField.borderStyle = UITextBorderStyleNone;
+    txtField.keyboardType = UIKeyboardTypeDefault;
+    txtField.backgroundColor = [UIColor clearColor];
+    txtField.returnKeyType = UIReturnKeyDone;
+	txtField.font = [UIFont fontWithName:@"Helvetica" size:16];
+    txtField.placeholder =@"Add Field";
+    txtField.frame = CGRectMake(10,9, scrollView.frame.size.width-150,40);
+    [Otherbtn addSubview:txtField];
+	
+    UIButton *generatebtn = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+    [generatebtn setFrame:CGRectMake(340, (height+80), 150, 50)];
+    generatebtn.backgroundColor = [UIColor clearColor];
+    generatebtn.userInteractionEnabled =YES;
+    [generatebtn addTarget:self action:@selector(GenerateCode:) forControlEvents:UIControlEventTouchUpInside];
+	
+    
+	[AddButton addObject:addbtn];
+	[AddButton addObject:Otherbtn];
+	[AddButton addObject:txtField];
+    
+}
+
+
+- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string   // return NO to not change text
+{	
+	
+	if([string isEqualToString:@""])
+		charcount=charcount-1;
+	else 
+		charcount=charcount+1;
+	
+	if(charcount>0)
+		BtnEncode.enabled=YES;
+	else
+		BtnEncode.enabled=NO;
+	
+	
+	
+	if (textField.tag==0) {
+		if([textField.text length] == 1)
+			textField.placeholder=@"Name";
+		
+	}
+	if (textField.tag==1) 
+	{
+		if([textField.text length] == 1)
+			textField.placeholder=@"Phone Number";
+		
+		
+			NSCharacterSet *cs;
+			NSString *filtered;
+			cs = [[NSCharacterSet characterSetWithCharactersInString:NUMBERS] invertedSet];
+			filtered = [[string componentsSeparatedByCharactersInSet:cs] componentsJoinedByString:@""];
+			if ([filtered length]>0 )
+			{
+				BtnEncode.enabled = YES;
+			}
+			
+			return [string isEqualToString:filtered];
+	}
+	if (textField.tag==2) {
+		if([textField.text length] == 1)
+			textField.placeholder=@"Prefix";
+		
+	}
+	if (textField.tag==3) {
+		if([textField.text length] == 1)
+			textField.placeholder=@"Phonetic First Name";
+		
+	}
+	if (textField.tag==4) {
+		if([textField.text length] == 1)
+			textField.placeholder=@"Phonetic Last Name";
+		
+	}
+	if (textField.tag==5) {
+		if([textField.text length] == 1)
+			textField.placeholder=@"Middle";
+		
+	}
+	if (textField.tag==6) {
+		if([textField.text length] == 1)
+			textField.placeholder=@"Suffix";
+		
+	}
+	if (textField.tag==7) {
+		if([textField.text length] == 1)
+			textField.placeholder=@"Job Title";
+		
+	}
+	if (textField.tag==8) {
+		if([textField.text length] == 1)
+			textField.placeholder=@"Department";
+		
+	}
+	
+	return YES;
+}
+
+
+-(BOOL)textFieldShouldBeginEditing:(UITextField *)textField
+{
+	activetxt=textField;	
+	for(int i=0;i<[arrLocal count];i++)
+	{
+		if([[arrLocal objectAtIndex:i] isEqual:textField])
+		{
+			ctr=i+1;
+			break;
+		}
+		
+	}	
+    
+    if(ctr == 4)
+    {
+        scrollView.contentOffset = CGPointMake(0, 50);
+    }
+    else if(ctr == 5)
+    {
+        scrollView.contentOffset = CGPointMake(0, 100);
+    }
+    else if(ctr == 6)
+    {
+        scrollView.contentOffset = CGPointMake(0, 150);
+    }
+    else if(ctr == 7)
+    {
+        scrollView.contentOffset = CGPointMake(0, 200);
+    }
+    else if(ctr == 8)
+    {
+        scrollView.contentOffset = CGPointMake(0, 250);
+    }
+    else if(ctr == 9)
+    {
+        scrollView.contentOffset = CGPointMake(0, 300);
+    }
+    
+	return YES;
+}
+
+
+- (void)textFieldDidEndEditing:(UITextField *)textField
+{
+		
+	[[arrField objectAtIndex:[textField tag]] setObject:textField.text forKey:@"value"];
+    
+	charcount=0;
+	NSString *str=@"";
+	for (int i=0; i<[arrField count]; i++)
+	{		
+		if ([[[arrField objectAtIndex:i] valueForKey:@"isactive"] isEqualToString:@"yes"]) 
+		{
+			if (![[[arrField objectAtIndex:i] valueForKey:@"value"] isEqualToString:@""]) 
+			{
+				str = [str stringByAppendingFormat:[[arrField objectAtIndex:i] valueForKey:@"value"]];
+			}
+		}
+	}
+	charcount=[str length];	
+}
+
+-(BOOL)textFieldShouldReturn:(UITextField *)textField
+{
+	if(ctr < [arrLocal count])		
+	{
+		[[arrLocal objectAtIndex:ctr++] becomeFirstResponder];	
+		/*
+		if(ctr == 4)
+		{
+			scrollView.contentOffset = CGPointMake(0, 50);
+		}
+		else if(ctr == 5)
+		{
+			scrollView.contentOffset = CGPointMake(0, 100);
+		}
+		else if(ctr == 6)
+		{
+			scrollView.contentOffset = CGPointMake(0, 150);
+		}
+		else if(ctr == 7)
+		{
+			scrollView.contentOffset = CGPointMake(0, 200);
+		}
+		else if(ctr == 8)
+		{
+			scrollView.contentOffset = CGPointMake(0, 250);
+		}
+		else if(ctr == 9)
+		{
+			scrollView.contentOffset = CGPointMake(0, 300);
+			//[textField resignFirstResponder];
+		}
+		*/
+	}		
+	else {
+		if ([arrLocal count]==2) {
+			[self Add:nil];
+		}
+		[textField resignFirstResponder];
+	}
+	
+	return YES;
+}
+ 
+
+
+-(void)Add:(id)sender
+{
+	[activetxt resignFirstResponder];
+    obj_OtherOptionController = [[OtherOptionController alloc] initWithNibName:@"OtherOptionController" bundle:nil];
+    obj_OtherOptionController.delegate=(id<OtherOptionDelegate>)self;
+    obj_OtherOptionController.tblArr=[arrField retain];
+	[self presentModalViewController:obj_OtherOptionController animated:TRUE];
+	[obj_OtherOptionController release];
+    //UINavigationController* tNav=[[UINavigationController alloc] initWithRootViewController:obj_OtherOptionController];	
+  //  newPopOver=[[UIPopoverController alloc] initWithContentViewController:tNav];
+   // newPopOver.popoverContentSize=CGSizeMake(320, 400);
+  //  [newPopOver presentPopoverFromRect:CGRectMake(addbtn.frame.origin.x, addbtn.frame.origin.y, addbtn.frame.size.width, addbtn.frame.size.height) inView:scrollView permittedArrowDirections:UIPopoverArrowDirectionAny animated:YES];
+ //   [tNav release];
+	
+}
+
+
+-(void) completeSelection:(NSMutableArray*) arr
+{
+    [arrField removeAllObjects];
+    [arrField addObject:arr];
+    [self reloadUI];
+}
+
+-(void) doneClicked:(NSMutableArray*) arr
+{
+    arrField = [arr copy];
+	[self reloadUI];
+}
+
+-(void) dismissPopOver
+{
+	
+}
+
+
+/*
+// Override to allow orientations other than the default portrait orientation.
+- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
+    // Return YES for supported orientations.
+    return (interfaceOrientation == UIInterfaceOrientationPortrait);
+}
+*/
+
+- (void)didReceiveMemoryWarning {
+    // Releases the view if it doesn't have a superview.
+    [super didReceiveMemoryWarning];
+    
+    // Release any cached data, images, etc. that aren't in use.
+}
+
+- (void)viewDidUnload {
+    [super viewDidUnload];
+    // Release any retained subviews of the main view.
+    // e.g. self.myOutlet = nil;
+}
+
+
+- (void)dealloc {
+    [super dealloc];
+}
+
+
+@end

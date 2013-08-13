@@ -1,0 +1,331 @@
+//
+//  InvitationDetailViewController.m
+//  KrenMarketing
+//
+//  Created by Ankit Vyas on 14/03/12.
+//  Copyright 2012 __MyCompanyName__. All rights reserved.
+//
+
+#import "InvitationDetailViewController.h"
+#import "ImageProcessingView_iPhone.h"
+#define ALPHABET @"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ  "
+#define NUMBERS @"+-1234567890"
+#define ZIP @" 1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-"
+
+@implementation InvitationDetailViewController
+@synthesize image_Card,btnIndex;
+// The designated initializer.  Override if you create the controller programmatically and want to perform customization that is not appropriate for viewDidLoad.
+/*
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self) {
+        // Custom initialization.
+    }
+    return self;
+}
+*/
+
+-(void)viewWillAppear:(BOOL)animated
+{
+	appDel = (KrenMarketingAppDelegate *)[[UIApplication sharedApplication]delegate];
+	
+	if(appDel.QRImageFromLib)
+		[btnQRCode setBackgroundImage:appDel.QRImageFromLib forState:UIControlStateNormal];
+	else {
+		[btnQRCode setBackgroundImage:[UIImage imageNamed:@"ivBackground.png"] forState:UIControlStateNormal];
+	}
+	
+	///// For Add Gestures /////////
+	UILongPressGestureRecognizer *longpressGestureEvent = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(longPressHandler:)];
+    longpressGestureEvent.minimumPressDuration = 1;
+    [longpressGestureEvent setDelegate:self];
+	[btnQRCode addGestureRecognizer:longpressGestureEvent];
+	[longpressGestureEvent release];
+}
+// Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+	scrollTexts.contentSize = CGSizeMake(0, 630);
+}
+
+-(IBAction)BtnContinueClicked
+{
+	ImageProcessingView_iPhone *imageProcessingView_iPhone = [[ImageProcessingView_iPhone alloc]initWithNibName:@"ImageProcessingView_iPhone" bundle:nil];
+	imageProcessingView_iPhone.EventTitle = txtEventTitle.text;
+	
+	imageProcessingView_iPhone.streetAdress = txtStreet.text;
+	imageProcessingView_iPhone.city = txtCity.text;
+	imageProcessingView_iPhone.State = txtState.text;
+	imageProcessingView_iPhone.Zip = txtZipCode.text;
+	imageProcessingView_iPhone.country = txtCountry.text;
+	
+	imageProcessingView_iPhone.image_Card = image_Card;
+	imageProcessingView_iPhone.image_photoLib = img_picLib;
+	imageProcessingView_iPhone.btnIndex = btnIndex;
+	
+	[self.navigationController pushViewController:imageProcessingView_iPhone animated:YES];
+	[imageProcessingView_iPhone release];
+}
+
+-(IBAction)btnLibraryClicked
+{
+	LibraryViewController *obj_LibraryViewController = [[LibraryViewController alloc]initWithNibName:@"LibraryViewController" bundle:nil];
+	obj_LibraryViewController.flagFromTemp = YES;
+	[self presentModalViewController:obj_LibraryViewController animated:YES];
+}
+-(IBAction)btnHomePressed:(id)sender
+{
+	[self.navigationController popToViewController:[[self.navigationController viewControllers]objectAtIndex:1] animated:YES];
+}
+-(IBAction)BackToRoot
+{
+	[self.navigationController popViewControllerAnimated:TRUE];
+}
+-(IBAction)btnPhotoLibraryClicked
+{
+	UIImagePickerController *controller = [[UIImagePickerController alloc] init];
+	[controller setDelegate:self];
+	[self presentModalViewController:controller animated:TRUE];
+}
+#pragma mark imagePickerController
+
+- (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker
+{
+	[picker dismissModalViewControllerAnimated:YES];	
+}
+- (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingImage:(UIImage *)image editingInfo:(NSDictionary *)editingInfo
+{
+	img_picLib = image;
+	img_picLib = [[self imageWithImage:image scaledToSize:CGSizeMake(65,65)] retain];
+	[btnPhotoLibImage setBackgroundImage:image forState:UIControlStateNormal];
+	[self dismissModalViewControllerAnimated:YES];
+}
+
+- (UIImage*)imageWithImage:(UIImage*)image 
+			  scaledToSize:(CGSize)newSize;
+{
+	UIGraphicsBeginImageContext( newSize );
+	[image drawInRect:CGRectMake(0,0,newSize.width,newSize.height)];
+	UIImage* newImage = UIGraphicsGetImageFromCurrentImageContext();
+	UIGraphicsEndImageContext();
+	
+	return newImage;
+}
+
+#pragma mark TextField delegateMethods
+- (BOOL)textFieldShouldBeginEditing:(UITextField *)textField
+{
+	
+	if([textField isEqual:txtState]||[textField isEqual:txtZipCode] ||
+	   [textField isEqual:txtCountry])
+	{
+		scrollTexts.contentOffset = CGPointMake(0,150);
+	}
+	
+	return YES;
+}
+-(void)textFieldDidChange:(id)sender
+{
+	UITextField *txt = (id)sender;
+	if(txt.tag == 0)
+	{
+		if([txtEventTitle.text length] > 0)
+		{
+			BtnContinue.enabled = TRUE;
+		}
+		else 
+		{
+			BtnContinue.enabled = FALSE;
+		}
+	}
+	if(txt.tag == 1)
+	{
+		if([txtStreet.text length] > 0)
+		{
+			BtnContinue.enabled = TRUE;
+		}
+		else 
+		{
+			BtnContinue.enabled = FALSE;
+		}
+	}
+	if(txt.tag == 2)
+	{
+		if([txtCity.text length] > 0)
+		{
+			BtnContinue.enabled = TRUE;
+		}
+		else 
+		{
+			BtnContinue.enabled = FALSE;
+		}
+	}
+	if(txt.tag == 3)
+	{
+		if([txtState.text length] > 0)
+		{
+			BtnContinue.enabled = TRUE;
+		}
+		else 
+		{
+			BtnContinue.enabled = FALSE;
+		}
+	}
+	if(txt.tag == 4)
+	{
+		if([txtZipCode.text length] > 0)
+		{
+			BtnContinue.enabled = TRUE;
+		}
+		else 
+		{
+			BtnContinue.enabled = FALSE;
+		}
+	}
+	if(txt.tag == 5)
+	{
+		if([txtCountry.text length] > 0)
+		{
+			BtnContinue.enabled = TRUE;
+		}
+		else 
+		{
+			BtnContinue.enabled = FALSE;
+		}
+	}
+	
+	if([txtEventTitle.text length] > 0 || [txtStreet.text length] >0 || [txtCity.text length] > 0 || [txtState.text length] > 0 || [txtZipCode.text length] >0 || [txtCountry.text length] >0)
+	{
+		BtnContinue.enabled = TRUE;
+	}
+}	
+
+- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string   // return NO to not change text
+{	
+	
+	
+	if ([textField isEqual:txtCity]) 
+	{
+		NSCharacterSet *cs;
+		NSString *filtered;
+		cs = [[NSCharacterSet characterSetWithCharactersInString:ALPHABET] invertedSet];
+		filtered = [[string componentsSeparatedByCharactersInSet:cs] componentsJoinedByString:@""];
+		if ([filtered length]>0 )
+		{
+			BtnContinue.enabled = YES;
+		}
+		
+		return [string isEqualToString:filtered];
+	}
+	else if ([textField isEqual:txtCountry]) 
+	{
+		NSCharacterSet *cs;
+		NSString *filtered;
+		cs = [[NSCharacterSet characterSetWithCharactersInString:ALPHABET] invertedSet];
+		filtered = [[string componentsSeparatedByCharactersInSet:cs] componentsJoinedByString:@""];
+		if ([filtered length]>0 )
+		{
+			BtnContinue.enabled = YES;
+		}
+		
+		return [string isEqualToString:filtered];
+	}
+	
+	else if ([textField isEqual:txtZipCode]) 
+	{
+		NSCharacterSet *cs;
+		NSString *filtered;
+		cs = [[NSCharacterSet characterSetWithCharactersInString:ZIP] invertedSet];
+		filtered = [[string componentsSeparatedByCharactersInSet:cs] componentsJoinedByString:@""];
+		if ([filtered length]>0 )
+		{
+			BtnContinue.enabled = YES;
+		}
+		
+		return [string isEqualToString:filtered];
+	}
+	
+	
+	return YES;
+}
+
+-(BOOL)textFieldShouldReturn:(UITextField *)textField
+{
+	if ([textField isEqual:txtEventTitle] ) 
+	{
+		[txtStreet becomeFirstResponder];
+	}
+	if ([textField isEqual:txtStreet] ) 
+	{
+		[txtCity becomeFirstResponder];
+	}
+	if([textField isEqual:txtCity])
+	{
+		[txtState becomeFirstResponder];
+	}
+	if([textField isEqual:txtState])
+	{
+		[txtZipCode becomeFirstResponder];
+	}
+	if([textField isEqual:txtZipCode])
+	{
+		[txtCountry becomeFirstResponder];
+	}
+	if([textField isEqual:txtCountry])
+	{
+		[txtCountry resignFirstResponder];
+	}
+
+	return YES;
+}
+#pragma mark longPressHandler
+- (void)longPressHandler:(UILongPressGestureRecognizer *)gestureRecognizer {
+	
+	if(UIGestureRecognizerStateBegan == gestureRecognizer.state) {
+		UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"" message:@"Are you sure, you want to delete QR Code?" delegate:self  cancelButtonTitle:@"Cancel" otherButtonTitles:@"Ok",nil];
+		alert.tag = 1000;
+		[alert show];
+		[alert release];
+    }
+	
+}
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
+{
+	if (buttonIndex==1) 
+	{
+		[btnQRCode setBackgroundImage:[UIImage imageNamed:@"ivBackground.png"] forState:UIControlStateNormal];
+		appDel.QRImageFromLib = nil;
+	}
+	
+	
+}
+
+/*
+// Override to allow orientations other than the default portrait orientation.
+- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
+    // Return YES for supported orientations.
+    return (interfaceOrientation == UIInterfaceOrientationPortrait);
+}
+*/
+
+- (void)didReceiveMemoryWarning {
+    // Releases the view if it doesn't have a superview.
+    [super didReceiveMemoryWarning];
+    
+    // Release any cached data, images, etc. that aren't in use.
+}
+
+- (void)viewDidUnload {
+    [super viewDidUnload];
+    // Release any retained subviews of the main view.
+    // e.g. self.myOutlet = nil;
+}
+
+
+- (void)dealloc {
+    [super dealloc];
+}
+
+
+@end
